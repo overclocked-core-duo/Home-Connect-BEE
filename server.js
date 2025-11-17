@@ -10,6 +10,8 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const apiRoutes = require('./api/apiRoutes');
 const authRoutes = require('./routes/auth');
+const dbTestRoutes = require('./routes/dbTest');
+const notificationTestRoutes = require('./routes/notificationTest');
 const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const jwtAuthMiddleware = require('./middlewares/authMiddleware');
@@ -37,6 +39,9 @@ const server = http.createServer(app);
 
 // Initialize WebSocket
 const io = initializeSocket(server);
+
+// Make io available to routes
+app.set('io', io);
 
 // Middleware
 app.use(cors());
@@ -98,6 +103,12 @@ app.get('/health', (req, res) => {
 
 // JWT-based authentication routes (no session auth required)
 app.use('/auth', authRoutes);
+
+// Database test routes (no authentication required for testing)
+app.use('/db', dbTestRoutes);
+
+// Notification test routes (no authentication required for testing)
+app.use('/api/test', notificationTestRoutes);
 
 // Authentication middleware
 const authMiddleware = (req, res, next) => {
@@ -235,12 +246,37 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
+// Database connection health checks (non-fatal)
+(async function checkDatabaseConnections() {
+  // Check PostgreSQL
+  try {
+    const pg = require('./db/postgres');
+    const result = await pg.query('SELECT NOW() AS now');
+    console.log('[Postgres] Connected successfully:', result.rows[0].now);
+  } catch (err) {
+    console.warn('[Postgres] Connection check failed:', err.message);
+    console.warn('[Postgres] Database endpoints will return errors until configured');
+  }
+
+  // Check MariaDB
+  try {
+    const maria = require('./db/mariadb');
+    const rows = await maria.query('SELECT NOW() as now');
+    const time = rows[0] && (rows[0].now || Object.values(rows[0])[0]);
+    console.log('[MariaDB] Connected successfully:', time);
+  } catch (err) {
+    console.warn('[MariaDB] Connection check failed:', err.message);
+    console.warn('[MariaDB] Database endpoints will return errors until configured');
+  }
+})();
+
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`[Server] Running at http://localhost:${PORT}`);
   console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`[WebSocket] Socket.IO initialized`);
   console.log(`[Health] Check endpoint available at http://localhost:${PORT}/health`);
+  console.log(`[Database] Test endpoints available at http://localhost:${PORT}/db/*`);
 });
 
 // Graceful shutdown

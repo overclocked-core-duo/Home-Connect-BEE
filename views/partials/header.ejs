@@ -26,6 +26,39 @@
         <div class="header-section right-section">
             <ul class="nav-links">
                 <% if(typeof user !== 'undefined' && user) { %>
+                    <!-- Notification Bell -->
+                    <li class="notification-container">
+                        <a href="#" class="notification-bell" id="notification-bell">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge">0</span>
+                        </a>
+                        
+                        <!-- Notification Dropdown -->
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <div class="notification-actions">
+                                    <button class="mark-all-read" id="mark-all-read" title="Mark all as read">
+                                        <i class="fas fa-check-double"></i>
+                                    </button>
+                                    <button class="clear-all" id="clear-all" title="Clear all">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="notification-list" id="notification-list">
+                                <div class="no-notifications">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                            
+                            <div class="notification-footer">
+                                <a href="#" id="view-all-notifications">View all notifications</a>
+                            </div>
+                        </div>
+                    </li>
                     <li><a href="/dashboard">Dashboard</a></li>
                     <li><a href="/api/logout">Logout</a></li>
                 <% } else { %>
