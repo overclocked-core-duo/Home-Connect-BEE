@@ -25,11 +25,9 @@ const User = require('./models/mongodb/User');
 
 // Import database connections (optional - uncomment to use)
 const { connectMongoDB } = require('./db/mongodb');
-// const { connectRedis } = require('./db/redis');
-// const { connectPostgres } = require('./db/postgres');
-// const { connectMariaDB } = require('./db/mariadb');
-// const { connectInflux } = require('./db/influx');
-// const { connectNeo4j } = require('./db/neo4j');
+const { connectRedis } = require('./db/redis');
+const { connectPostgres } = require('./db/postgres');
+const { connectMariaDB } = require('./db/mariadb');
 
 // Import WebSocket
 const { initializeSocket, notifyNewProperty } = require('./websocket/socket');
@@ -60,7 +58,7 @@ mongoose.connect(MONGO_URL)
 
 // Optional: Initialize Redis for caching
 // Uncomment when Redis is available
-// connectRedis().catch(err => console.error('[Redis] Connection failed:', err));
+connectRedis().catch(err => console.warn('[Redis] Connection failed:', err));
 
 // Optional: Initialize other databases
 // connectPostgres().catch(err => console.error('[Postgres] Connection failed:', err));
@@ -132,7 +130,7 @@ app.use(authMiddleware);
 
 // API routes (with optional caching for GET requests)
 // Uncomment cacheMiddleware when Redis is configured
-// app.use('/api/properties', cacheMiddleware(60)); // Cache for 60 seconds
+app.use('/api/properties', cacheMiddleware(60)); // Cache for 60 seconds
 app.use('/api', apiRoutes);
 
 // Images route - add this before the EJS routes
@@ -297,6 +295,18 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
+// Test route to verify caching
+app.get('/api/test/cache', cacheMiddleware(30), async (req, res) => {
+  // Simulate expensive operation
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  res.json({
+    message: 'This response should be cached for 30 seconds',
+    timestamp: new Date().toISOString(),
+    random: Math.random()
+  });
+});
+
 // Handle 404 errors
 app.use((req, res) => {
   res.status(404).send('404 - Page Not Found');
@@ -326,6 +336,22 @@ app.use(errorHandler);
   } catch (err) {
     console.warn('[MariaDB] Connection check failed:', err.message);
     console.warn('[MariaDB] Database endpoints will return errors until configured');
+  }
+})();
+
+// Check Redis connection
+(async function checkRedisConnection() {
+  try {
+    const { getRedisClient } = require('./db/redis');
+    const client = getRedisClient();
+    const pong = await client.ping();
+    const keyCount = await client.dbsize();
+    console.log(`[Redis] Connected successfully: ${pong}`);
+    console.log(`[Redis] Current keys in database: ${keyCount}`);
+    console.log('[Redis] Cache middleware is active');
+  } catch (err) {
+    console.warn('[Redis] Connection check failed:', err.message);
+    console.warn('[Redis] Caching will be disabled until Redis is configured');
   }
 })();
 

@@ -1,4 +1,4 @@
-const { getCache, setCache } = require('../db/redis');
+const { getRedisClient, getCache, setCache } = require('../db/redis');
 
 /**
  * Redis caching middleware
@@ -13,42 +13,44 @@ const cacheMiddleware = (ttl = 60) => {
     }
 
     try {
-      // Generate cache key from URL and query parameters
-      const cacheKey = `cache:${req.originalUrl || req.url}`;
-
-      // Try to get cached response
-      const cachedData = await getCache(cacheKey);
-
-      if (cachedData) {
-        console.log(`[Cache] Cache HIT for ${cacheKey}`);
-        // Parse and send cached response
-        return res.json(JSON.parse(cachedData));
+      // Check if Redis is connected
+      let redis;
+      try {
+        redis = getRedisClient();
+        await redis.ping(); // Test connection
+      } catch (err) {
+        // Redis not available, skip caching
+        return next();
       }
 
-      console.log(`[Cache] Cache MISS for ${cacheKey}`);
+      const key = `cache:${req.originalUrl}`;
 
-      // Store original res.json function
+      // Try to get cached response
+      const cachedResponse = await getCache(key);
+
+      if (cachedResponse) {
+        console.log(`[Cache] HIT: ${req.originalUrl}`);
+        return res.json(JSON.parse(cachedResponse));
+      }
+
+      console.log(`[Cache] MISS: ${req.originalUrl}`);
+
+      // Store original res.json
       const originalJson = res.json.bind(res);
 
       // Override res.json to cache the response
-      res.json = function (data) {
-        // Cache the response data
-        setCache(cacheKey, JSON.stringify(data), ttl)
-          .then(() => {
-            console.log(`[Cache] Cached response for ${cacheKey} (TTL: ${ttl}s)`);
-          })
-          .catch(err => {
-            console.error('[Cache] Error caching response:', err.message);
-          });
+      res.json = (data) => {
+        // Cache the response
+        setCache(key, JSON.stringify(data), ttl).catch(err => {
+          console.error('[Cache] Error setting cache:', err.message);
+        });
 
-        // Call original json function
         return originalJson(data);
       };
 
       next();
     } catch (err) {
       console.error('[Cache] Middleware error:', err.message);
-      // Continue without caching on error
       next();
     }
   };
