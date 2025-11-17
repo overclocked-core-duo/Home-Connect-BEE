@@ -95,12 +95,11 @@ class NotificationManager {
       
       // Connection events
       this.socket.on('connect', () => {
-        console.log('[Notifications] WebSocket connected');
-        // Connection notification removed - silent connection
+        // Connected (silent)
       });
-      
+
       this.socket.on('disconnect', () => {
-        console.log('[Notifications] WebSocket disconnected');
+        // Disconnected (silent)
       });
       
       this.socket.on('connect_error', (error) => {
@@ -513,8 +512,8 @@ class NotificationManager {
    */
   requestNotificationPermission() {
     if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().then(permission => {
-        console.log('[Notifications] Permission:', permission);
+      Notification.requestPermission().then(() => {
+        // Permission result intentionally not logged
       });
     }
   }
@@ -569,6 +568,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Only initialize if notification elements exist (user is logged in)
   if (document.getElementById('notification-bell')) {
     window.notificationManager = new NotificationManager();
-    console.log('[Notifications] System initialized');
   }
 });
