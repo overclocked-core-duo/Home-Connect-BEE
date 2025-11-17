@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Contact Us | HomeConnect</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+   
+<!-- header section starts  -->
+<%- include('partials/header') %>
+
+<!-- contact section starts  -->
+<section class="view-property" style="padding-top: 40px;">
+   <div class="details">
+      <h3 class="name" style="text-align: center; margin-top: 25px;">Get In Touch</h3>
+      
+      <div class="flex" style="padding-top: 20px;">
+         <div class="box" style="flex: 1;">
+            <img src="images/contact-img.svg" alt="Contact Us" style="width: 100%; max-width: 400px; display: block; margin: 0 auto;">
+         </div>
+         <div class="box" style="flex: 1;">
+            <form action="" method="post" style="padding: 0 20px;">
+               <p style="margin-bottom: 20px; color: #666;">Have questions or need assistance? Reach out to us!</p>
+               <div style="margin-bottom: 15px;">
+                  <input type="text" name="name" required maxlength="50" placeholder="Enter your name" class="input" style="width: 100%;">
+               </div>
+               <div style="margin-bottom: 15px;">
+                  <input type="email" name="email" required maxlength="50" placeholder="Enter your email" class="input" style="width: 100%;">
+               </div>
+               <div style="margin-bottom: 15px;">
+                  <input type="tel" name="number" required maxlength="15" placeholder="Enter your phone number" class="input" style="width: 100%;">
+               </div>
+               <div style="margin-bottom: 20px;">
+                  <textarea name="message" placeholder="Enter your message" required maxlength="1000" rows="5" class="input" style="width: 100%; resize: vertical;"></textarea>
+               </div>
+               <button type="submit" name="send" class="inline-btn">Send Message</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- contact section ends -->
+
+<!-- faq section starts  -->
+<section class="view-property" style="padding-top: 30px; padding-bottom: 60px;">
+   <div class="details">
+      <h3 class="name" style="text-align: center; margin-top: 25px;" id="faq">Frequently Asked Questions</h3>
+      
+      <div style="padding: 20px 25px;">
+         <div class="faq-container" style="max-width: 800px; margin: 0 auto;">
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>How to cancel booking?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">You can cancel your booking through your account dashboard. Navigate to "My Bookings" section and click the cancel button next to the booking you wish to cancel. Please note that cancellation policies may vary depending on the property.</p>
+               </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>When will I get the possession?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">Possession dates vary by property and are specified in your purchase or rental agreement. For new constructions, the builder will provide an estimated timeline. For immediate possession properties, you can move in after completing all necessary documentation and payments.</p>
+               </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>Where can I pay the rent?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">Rent can be paid through our secure online portal. Log in to your account, navigate to "Payments" section, and choose your preferred payment method. We accept credit/debit cards, bank transfers, and digital payment options for your convenience.</p>
+               </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>How to contact with the buyers?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">If you're a seller, you can communicate with interested buyers through our secure messaging system. All inquiries about your property will appear in your dashboard, and you'll receive email notifications when someone contacts you about your listing.</p>
+               </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>Why is my listing not showing up?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">New listings undergo a verification process which typically takes 24-48 hours. If your listing isn't visible after this period, please ensure all required fields are completed, including high-quality images. For further assistance, contact our support team.</p>
+               </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+               <div class="faq-question" style="padding: 15px; background-color: #f8f9fa; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                  <span>How to promote my listing?</span>
+                  <i class="fas fa-chevron-down" style="color: #2c6bed;"></i>
+               </div>
+               <div class="faq-answer" style="padding: 0 15px; border-top: 1px solid #eee; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                  <p style="padding-top: 15px; padding-bottom: 15px;">You can promote your listing by upgrading to our Premium or Featured listings packages. These options increase visibility on our homepage, search results, and email newsletters. Additionally, sharing your listing on social media platforms directly from your dashboard can help reach more potential buyers.</p>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- faq section ends -->
+
+<!-- footer section starts  -->
+<%- include('partials/footer') %>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+<!-- FAQ Toggle Script -->
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      
+      faqQuestions.forEach(question => {
+         question.addEventListener('click', function() {
+            const answer = this.nextElementSibling;
+            const icon = this.querySelector('i');
+            
+            // Toggle answer visibility
+            if (answer.style.maxHeight && answer.style.maxHeight !== '0px') {
+               answer.style.maxHeight = '0px';
+               icon.classList.remove('fa-chevron-up');
+               icon.classList.add('fa-chevron-down');
+            } else {
+               // Set a large enough value to show full content
+               answer.style.maxHeight = answer.scrollHeight + 'px';
+               icon.classList.remove('fa-chevron-down');
+               icon.classList.add('fa-chevron-up');
+            }
+
+            // Optional: Close other open FAQs (accordion style)
+            const allAnswers = document.querySelectorAll('.faq-answer');
+            const allIcons = document.querySelectorAll('.faq-question i');
+            
+            allAnswers.forEach((item, index) => {
+               if (item !== answer && item.style.maxHeight && item.style.maxHeight !== '0px') {
+                  item.style.maxHeight = '0px';
+                  allIcons[index].classList.remove('fa-chevron-up');
+                  allIcons[index].classList.add('fa-chevron-down');
+               }
+            });
+         });
+      });
+   });
+</script>
+
+</body>
+</html>

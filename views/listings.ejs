@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>All Listings</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+   
+<!-- header section starts  -->
+<%- include('partials/header') %>
+
+<!-- header section ends -->
+
+<!-- listings section starts  -->
+
+<section class="listings">
+
+   <h1 class="heading">all listings</h1>
+
+   <div class="box-container">
+      <% if (properties && properties.length > 0) { %>
+         <% properties.forEach(property => { %>
+            <div class="box">
+               <div class="admin">
+                  <h3><%= property.owner.username.charAt(0).toUpperCase() %></h3>
+                  <div>
+                     <p><%= property.owner.name || property.owner.username %></p>
+                     <span><%= new Date(property.createdAt).toLocaleDateString() %></span>
+                  </div>
+               </div>
+               <div class="thumb">
+                  <p class="type">
+                     <span><%= property.type %></span>
+                     <span><%= property.offerType %></span>
+                  </p>
+                  <img src="images/<%= property.image %>" alt="<%= property.title %>">
+               </div>
+               <h3 class="name"><%= property.title %></h3>
+               <p class="location"><i class="fas fa-map-marker-alt"></i><span><%= property.location %></span></p>
+               <div class="flex">
+                  <p><i class="fas fa-bed"></i><span><%= property.bedrooms %></span></p>
+                  <p><i class="fas fa-bath"></i><span><%= property.bathrooms %></span></p>
+                  <p><i class="fas fa-maximize"></i><span><%= property.area %>sqft</span></p>
+               </div>
+               <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <p style="font-size: 1.2rem; font-weight: bold; color: #2c6bed;">₹<%= property.price.toLocaleString() %></p>
+                  <p style="font-size: 0.9rem;"><%= property.status %></p>
+               </div>
+               <a href="/view-property/<%= property._id %>" class="btn">view property</a>
+            </div>
+         <% }); %>
+      <% } else { %>
+         <div style="text-align: center; width: 100%; padding: 20px;">
+            <p>No properties found. Be the first to add a property listing!</p>
+            <a href="/dashboard" class="btn" style="margin-top: 10px;">Add Property</a>
+         </div>
+      <% } %>
+   </div>
+
+</section>
+
+<!-- listings section ends -->
+
+<!-- footer section starts  -->
+<%- include('partials/footer') %>
+
+<!-- footer section ends -->
+
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>

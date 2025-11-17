@@ -1,0 +1,59 @@
+<!-- login.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - HomeConnect</title>
+    
+    <!-- custom css file link -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    
+    <!-- header section starts -->
+    <%- include('partials/header') %>
+    
+    <!-- login section starts -->
+    <section class="page-section">
+        <div class="form-container">
+            <div class="form-header">
+                <h1><i class="fas fa-sign-in-alt"></i>Login</h1>
+                <div class="form-divider"></div>
+            </div>
+            
+            <form action="/api/login" method="POST">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user"></i>Username
+                    </label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i>Password
+                    </label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="form-button">
+                    <i class="fas fa-sign-in-alt"></i>Login to Account
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <p>Don't have an account? <a href="/register">Register now</a></p>
+                <p><a href="/forgot-password">Forgot your password?</a></p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- footer section starts -->
+    <%- include('partials/footer') %>
+    
+    <!-- custom js file link -->
+    <script src="js/script.js"></script>
+</body>
+</html></h1>

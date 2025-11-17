@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>About Us | HomeConnect</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+   
+<!-- header section starts  -->
+<%- include('partials/header') %>
+
+<!-- about section starts  -->
+<section class="page-section">
+   <div class="container">
+      <h1 class="section-heading">Why Choose Us</h1>
+      
+      <div class="about-content">
+         <div class="about-image">
+            <img src="images/about-img.svg" alt="About Us">
+         </div>
+         <div class="about-text">
+            <p>At HomeConnect, we pride ourselves on connecting you with your dream property. Our experienced agents have deep local knowledge and access to exclusive listings, ensuring you find exactly what you're looking for. We've helped over 1,000 families find their perfect homes in the last year alone.</p>
+            <a href="/contact" class="inline-btn">Contact Us</a>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- about section ends -->
+
+<!-- steps section starts  -->
+<section class="page-section" style="background-color: #fff;">
+   <div class="container">
+      <h2 class="section-heading">3 Simple Steps</h2>
+      
+      <div class="steps-grid">
+         <div class="step-card">
+            <div class="step-icon">
+               <img src="images/step-1.png" alt="Search Property">
+            </div>
+            <h3>Search Property</h3>
+            <p>Browse our extensive database of properties filtered by location, price, amenities, and more to find options that match your requirements.</p>
+         </div>
+
+         <div class="step-card">
+            <div class="step-icon">
+               <img src="images/step-2.png" alt="Contact Agents">
+            </div>
+            <h3>Contact Agents</h3>
+            <p>Connect with our professional real estate agents who will arrange viewings and guide you through the entire buying or renting process.</p>
+         </div>
+
+         <div class="step-card">
+            <div class="step-icon">
+               <img src="images/step-3.png" alt="Enjoy Property">
+            </div>
+            <h3>Enjoy Property</h3>
+            <p>Complete the paperwork with our support and move into your new home with confidence, knowing you've made the right choice.</p>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- steps section ends -->   
+
+<!-- review section starts  -->
+<section class="page-section">
+   <div class="container">
+      <h2 class="section-heading">Client Reviews</h2>
+      
+      <div class="reviews-grid">
+         <div class="review-card">
+            <div class="review-user">
+               <img src="images/pic-1.png" alt="John Doe">
+               <div>
+                  <h4>John Doe</h4>
+                  <div class="stars">
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star-half-alt"></i>
+                  </div>
+               </div>
+            </div>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Adipisci voluptates delectus distinctio quam sequi error eum suscipit tempore inventore ex!</p>
+         </div>
+
+         <div class="review-card">
+            <div class="review-user">
+               <img src="images/pic-2.png" alt="Jane Smith">
+               <div>
+                  <h4>Jane Smith</h4>
+                  <div class="stars">
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star-half-alt"></i>
+                  </div>
+               </div>
+            </div>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Adipisci voluptates delectus distinctio quam sequi error eum suscipit tempore inventore ex!</p>
+         </div>
+
+         <div class="review-card">
+            <div class="review-user">
+               <img src="images/pic-3.png" alt="Robert Johnson">
+               <div>
+                  <h4>Robert Johnson</h4>
+                  <div class="stars">
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                     <i class="fas fa-star"></i>
+                  </div>
+               </div>
+            </div>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Adipisci voluptates delectus distinctio quam sequi error eum suscipit tempore inventore ex!</p>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- review section ends -->
+
+<!-- footer section starts  -->
+<%- include('partials/footer') %>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>

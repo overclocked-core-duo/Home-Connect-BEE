@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Search Properties | HomeConnect</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="/css/style.css">
+
+   <style>
+      .search-description {
+         text-align: center;
+         margin: 0 auto 20px;
+         max-width: 800px;
+         color: #666;
+         padding: 0 20px;
+      }
+
+      .error-message {
+         background-color: #ffebee;
+         color: #d32f2f;
+         padding: 10px 15px;
+         border-radius: 5px;
+         margin: 10px auto 20px;
+         max-width: 800px;
+         text-align: center;
+      }
+
+      .search-heading {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 20px;
+         padding: 0 15px;
+      }
+
+      .search-heading .count {
+         font-size: 1rem;
+         color: #666;
+         font-weight: normal;
+      }
+
+      .search-tools {
+         display: flex;
+         gap: 10px;
+         align-items: center;
+      }
+
+      .sort-select {
+         padding: 8px 12px;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         outline: none;
+         font-size: 0.9rem;
+      }
+
+      .clear-search {
+         padding: 8px 15px;
+         background-color: #f5f5f5;
+         color: #333;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         cursor: pointer;
+         transition: all 0.3s ease;
+         font-size: 0.9rem;
+         text-decoration: none;
+         display: inline-block;
+      }
+
+      .clear-search:hover {
+         background-color: #e0e0e0;
+      }
+
+      .no-results {
+         text-align: center;
+         padding: 40px 20px;
+      }
+
+      .no-results p {
+         margin-bottom: 15px;
+         color: #666;
+      }
+
+      .no-results .suggestions {
+         margin-top: 20px;
+         font-size: 0.9rem;
+         color: #777;
+      }
+
+      .no-results .suggestions ul {
+         list-style-type: disc;
+         margin-left: 20px;
+         text-align: left;
+         display: inline-block;
+      }
+
+      .no-results .suggestions li {
+         margin: 5px 0;
+      }
+
+      @media (max-width: 768px) {
+         .search-heading {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+         }
+
+         .search-tools {
+            width: 100%;
+            justify-content: space-between;
+         }
+      }
+   </style>
+</head>
+<body>
+   
+<!-- header section starts  -->
+<%- include('partials/header') %>
+<!-- header section ends -->
+
+<!-- search filter section starts  -->
+
+<section class="filters" style="padding-bottom: 0;">
+   <form action="/api/search" method="post">
+      <div id="close-filter"><i class="fas fa-times"></i></div>
+      <h3>filter your search</h3>
+         
+      <div class="flex">
+         <div class="box">
+            <p>enter location</p>
+            <input type="text" name="location" value="<%= filters.location || '' %>" maxlength="50" placeholder="enter city name" class="input">
+         </div>
+         <div class="box">
+            <p>offer type</p>
+            <select name="offer" class="input">
+               <option value="">Any offer type</option>
+               <option value="sale" <%= (filters.offer === 'sale') ? 'selected' : '' %>>Sale</option>
+               <option value="resale" <%= (filters.offer === 'resale') ? 'selected' : '' %>>Resale</option>
+               <option value="rent" <%= (filters.offer === 'rent') ? 'selected' : '' %>>Rent</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>property type</p>
+            <select name="type" class="input">
+               <option value="">Any property type</option>
+               <option value="flat" <%= (filters.type === 'flat') ? 'selected' : '' %>>Flat</option>
+               <option value="house" <%= (filters.type === 'house') ? 'selected' : '' %>>House</option>
+               <option value="shop" <%= (filters.type === 'shop') ? 'selected' : '' %>>Shop</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>how many BHK</p>
+            <select name="bhk" class="input">
+               <option value="">Any BHK</option>
+               <option value="1" <%= (filters.bhk === '1') ? 'selected' : '' %>>1 BHK</option>
+               <option value="2" <%= (filters.bhk === '2') ? 'selected' : '' %>>2 BHK</option>
+               <option value="3" <%= (filters.bhk === '3') ? 'selected' : '' %>>3 BHK</option>
+               <option value="4" <%= (filters.bhk === '4') ? 'selected' : '' %>>4 BHK</option>
+               <option value="5" <%= (filters.bhk === '5') ? 'selected' : '' %>>5 BHK</option>
+               <option value="6" <%= (filters.bhk === '6') ? 'selected' : '' %>>6 BHK</option>
+               <option value="7" <%= (filters.bhk === '7') ? 'selected' : '' %>>7 BHK</option>
+               <option value="8" <%= (filters.bhk === '8') ? 'selected' : '' %>>8 BHK</option>
+               <option value="9" <%= (filters.bhk === '9') ? 'selected' : '' %>>9 BHK</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>minimum budget</p>
+            <select name="minimum" class="input">
+               <option value="">No minimum</option>
+               <option value="500000" <%= (filters.minimum === '500000') ? 'selected' : '' %>>5 lakh</option>
+               <option value="1000000" <%= (filters.minimum === '1000000') ? 'selected' : '' %>>10 lakh</option>
+               <option value="2000000" <%= (filters.minimum === '2000000') ? 'selected' : '' %>>20 lakh</option>
+               <option value="3000000" <%= (filters.minimum === '3000000') ? 'selected' : '' %>>30 lakh</option>
+               <option value="4000000" <%= (filters.minimum === '4000000') ? 'selected' : '' %>>40 lakh</option>
+               <option value="5000000" <%= (filters.minimum === '5000000') ? 'selected' : '' %>>50 lakh</option>
+               <option value="6000000" <%= (filters.minimum === '6000000') ? 'selected' : '' %>>60 lakh</option>
+               <option value="7000000" <%= (filters.minimum === '7000000') ? 'selected' : '' %>>70 lakh</option>
+               <option value="8000000" <%= (filters.minimum === '8000000') ? 'selected' : '' %>>80 lakh</option>
+               <option value="9000000" <%= (filters.minimum === '9000000') ? 'selected' : '' %>>90 lakh</option>
+               <option value="10000000" <%= (filters.minimum === '10000000') ? 'selected' : '' %>>1 Crore</option>
+               <option value="20000000" <%= (filters.minimum === '20000000') ? 'selected' : '' %>>2 Crore</option>
+               <option value="30000000" <%= (filters.minimum === '30000000') ? 'selected' : '' %>>3 Crore</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>maximum budget</p>
+            <select name="maximum" class="input">
+               <option value="">No maximum</option>
+               <option value="500000" <%= (filters.maximum === '500000') ? 'selected' : '' %>>5 lakh</option>
+               <option value="1000000" <%= (filters.maximum === '1000000') ? 'selected' : '' %>>10 lakh</option>
+               <option value="2000000" <%= (filters.maximum === '2000000') ? 'selected' : '' %>>20 lakh</option>
+               <option value="3000000" <%= (filters.maximum === '3000000') ? 'selected' : '' %>>30 lakh</option>
+               <option value="4000000" <%= (filters.maximum === '4000000') ? 'selected' : '' %>>40 lakh</option>
+               <option value="5000000" <%= (filters.maximum === '5000000') ? 'selected' : '' %>>50 lakh</option>
+               <option value="6000000" <%= (filters.maximum === '6000000') ? 'selected' : '' %>>60 lakh</option>
+               <option value="7000000" <%= (filters.maximum === '7000000') ? 'selected' : '' %>>70 lakh</option>
+               <option value="8000000" <%= (filters.maximum === '8000000') ? 'selected' : '' %>>80 lakh</option>
+               <option value="9000000" <%= (filters.maximum === '9000000') ? 'selected' : '' %>>90 lakh</option>
+               <option value="10000000" <%= (filters.maximum === '10000000') ? 'selected' : '' %>>1 Crore</option>
+               <option value="20000000" <%= (filters.maximum === '20000000') ? 'selected' : '' %>>2 Crore</option>
+               <option value="30000000" <%= (filters.maximum === '30000000') ? 'selected' : '' %>>3 Crore</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>status</p>
+            <select name="status" class="input">
+               <option value="">Any status</option>
+               <option value="ready to move" <%= (filters.status === 'ready to move') ? 'selected' : '' %>>Ready to move</option>
+               <option value="under construction" <%= (filters.status === 'under construction') ? 'selected' : '' %>>Under construction</option>
+            </select>
+         </div>
+         <div class="box">
+            <p>furnished</p>
+            <select name="furnished" class="input">
+               <option value="">Any furnishing</option>
+               <option value="unfurnished" <%= (filters.furnished === 'unfurnished') ? 'selected' : '' %>>Unfurnished</option>
+               <option value="furnished" <%= (filters.furnished === 'furnished') ? 'selected' : '' %>>Furnished</option>
+               <option value="semi-furnished" <%= (filters.furnished === 'semi-furnished') ? 'selected' : '' %>>Semi-furnished</option>
+            </select>
+         </div>
+      </div>
+      <input type="submit" value="search property" name="search" class="btn">
+   </form>
+</section>
+
+<!-- search filter section ends -->
+
+<div id="filter-btn" class="fas fa-filter"></div>
+
+<!-- listings section starts  -->
+
+<section class="listings">
+   <% if (!searchPerformed) { %>
+      <h1 class="heading">Browse Properties</h1>
+      <div class="search-description">
+         <p>Find your dream property by using the search filters above. Browse through our latest listings below or use specific criteria to narrow down your search.</p>
+      </div>
+   <% } else { %>
+      <div class="search-heading">
+         <h1 class="heading">
+            Search Results 
+            <span class="count">(<%= properties ? properties.length : 0 %> properties found)</span>
+         </h1>
+         <div class="search-tools">
+            <select id="sort-properties" class="sort-select">
+               <option value="default">Sort by: Default</option>
+               <option value="price-asc">Price: Low to High</option>
+               <option value="price-desc">Price: High to Low</option>
+               <option value="date-desc">Newest First</option>
+            </select>
+            <a href="/api/clear-filters" class="clear-search">Clear Filters</a>
+         </div>
+      </div>
+   <% } %>
+
+   <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-message">
+         <%= error %>
+      </div>
+   <% } %>
+
+   <div class="box-container">
+      <% if (properties && properties.length > 0) { %>
+         <% properties.forEach(property => { %>
+            <div class="box" data-price="<%= property.price %>" data-date="<%= new Date(property.createdAt).getTime() %>">
+               <div class="admin">
+                  <h3><%= property.owner.username.charAt(0).toUpperCase() %></h3>
+                  <div>
+                     <p><%= property.owner.name || property.owner.username %></p>
+                     <span><%= new Date(property.createdAt).toLocaleDateString() %></span>
+                  </div>
+               </div>
+               <div class="thumb">
+                  <p class="type">
+                     <span><%= property.type %></span>
+                     <span><%= property.offerType %></span>
+                  </p>
+                  <img src="/images/<%= property.image %>" alt="<%= property.title %>" onerror="this.src='/images/house-img-1.jpg'">
+               </div>
+               <h3 class="name"><%= property.title %></h3>
+               <p class="location"><i class="fas fa-map-marker-alt"></i><span><%= property.location %></span></p>
+               <div class="flex">
+                  <p><i class="fas fa-bed"></i><span><%= property.bedrooms %></span></p>
+                  <p><i class="fas fa-bath"></i><span><%= property.bathrooms %></span></p>
+                  <p><i class="fas fa-maximize"></i><span><%= property.area %>sqft</span></p>
+               </div>
+               <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <p style="font-size: 1.2rem; font-weight: bold; color: #2c6bed;">₹<%= property.price.toLocaleString() %></p>
+                  <p style="font-size: 0.9rem;"><%= property.status %></p>
+               </div>
+               <a href="/view-property/<%= property._id %>" class="btn">view property</a>
+            </div>
+         <% }); %>
+      <% } else { %>
+         <div class="no-results">
+            <% if (searchPerformed) { %>
+               <h3>No properties match your search criteria</h3>
+               <p>Try adjusting your search filters for better results</p>
+               <div class="suggestions">
+                  <p>Here are some suggestions:</p>
+                  <ul>
+                     <li>Broaden your search area</li>
+                     <li>Increase your price range</li>
+                     <li>Try different property types</li>
+                     <li>Remove some filters</li>
+                  </ul>
+               </div>
+               <a href="/api/clear-filters" class="btn" style="margin-top: 20px;">View All Properties</a>
+            <% } else { %>
+               <h3>No properties available yet</h3>
+               <p>Be the first to add properties to our platform</p>
+               <a href="/dashboard" class="btn" style="margin-top: 20px;">Add Property</a>
+            <% } %>
+         </div>
+      <% } %>
+   </div>
+
+</section>
+
+<!-- listings section ends -->
+
+<!-- footer section starts  -->
+<%- include('partials/footer') %>
+<!-- footer section ends -->
+
+<!-- custom js file link  -->
+<script src="/js/script.js"></script>
+
+<script>
+document.querySelector('#filter-btn').onclick = () => {
+   document.querySelector('.filters').classList.add('active');
+}
+
+document.querySelector('#close-filter').onclick = () => {
+   document.querySelector('.filters').classList.remove('active');
+}
+
+// Sorting functionality
+document.getElementById('sort-properties')?.addEventListener('change', function() {
+   const sortValue = this.value;
+   const propertyBoxes = Array.from(document.querySelectorAll('.box-container .box'));
+   
+   switch(sortValue) {
+      case 'price-asc':
+         propertyBoxes.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+         break;
+      case 'price-desc':
+         propertyBoxes.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+         break;
+      case 'date-desc':
+         propertyBoxes.sort((a, b) => parseFloat(b.dataset.date) - parseFloat(a.dataset.date));
+         break;
+      default:
+         // Default sorting (could be based on relevance or another factor)
+         break;
+   }
+   
+   const container = document.querySelector('.box-container');
+   propertyBoxes.forEach(box => container.appendChild(box));
+});
+
+// Fix for any invalid image sources
+document.addEventListener('DOMContentLoaded', function() {
+   const propertyImages = document.querySelectorAll('.thumb img');
+   propertyImages.forEach(img => {
+      img.onerror = function() {
+         this.src = '/images/house-img-1.jpg';
+      }
+   });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,257 @@
+require('dotenv').config();
+const express = require("express");
+const http = require("http");
+const path = require("path");
+const fs = require("fs");
+const morgan = require("morgan");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const apiRoutes = require('./api/apiRoutes');
+const authRoutes = require('./routes/auth');
+const logger = require('./middlewares/logger');
+const errorHandler = require('./middlewares/errorHandler');
+const jwtAuthMiddleware = require('./middlewares/authMiddleware');
+const roleMiddleware = require('./middlewares/roleMiddleware');
+const cacheMiddleware = require('./middlewares/cacheMiddleware');
+const httpsRedirect = require('./middlewares/httpsRedirect');
+
+// Import models
+const Property = require('./models/mongodb/Property');
+const User = require('./models/mongodb/User');
+
+// Import database connections (optional - uncomment to use)
+const { connectMongoDB } = require('./db/mongodb');
+// const { connectRedis } = require('./db/redis');
+// const { connectPostgres } = require('./db/postgres');
+// const { connectMariaDB } = require('./db/mariadb');
+// const { connectInflux } = require('./db/influx');
+// const { connectNeo4j } = require('./db/neo4j');
+
+// Import WebSocket
+const { initializeSocket, notifyNewProperty } = require('./websocket/socket');
+
+const app = express();
+const server = http.createServer(app);
+
+// Initialize WebSocket
+const io = initializeSocket(server);
+
+// Middleware
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Optional: HTTPS redirect (controlled by environment variable)
+// app.use(httpsRedirect);
+
+// Connect to MongoDB
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/homeconnect';
+mongoose.connect(MONGO_URL)
+  .then(() => console.log('[MongoDB] Connected to MongoDB'))
+  .catch(err => console.error('[MongoDB] Could not connect to MongoDB:', err));
+
+// Optional: Initialize Redis for caching
+// Uncomment when Redis is available
+// connectRedis().catch(err => console.error('[Redis] Connection failed:', err));
+
+// Optional: Initialize other databases
+// connectPostgres().catch(err => console.error('[Postgres] Connection failed:', err));
+// connectMariaDB().catch(err => console.error('[MariaDB] Connection failed:', err));
+// connectInflux();
+// connectNeo4j();
+
+// Set up session with MongoDB store
+const SESSION_SECRET = process.env.SESSION_SECRET || 'homeconnectsecret';
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: MONGO_URL,
+    ttl: 14 * 24 * 60 * 60 // 14 days
+  }),
+  cookie: { maxAge: 14 * 24 * 60 * 60 * 1000 } // 14 days in ms
+}));
+
+// Set up EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Custom logger middleware
+app.use(logger);
+
+// Health check endpoint (no authentication required)
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// JWT-based authentication routes (no session auth required)
+app.use('/auth', authRoutes);
+
+// Authentication middleware
+const authMiddleware = (req, res, next) => {
+  // Skip authentication for login and register routes
+  if (req.path === '/login' || req.path === '/register' || 
+      req.path === '/api/login' || req.path === '/api/register') {
+    return next();
+  }
+  
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  
+  // Make user data available to all views
+  res.locals.user = req.session.user;
+  next();
+};
+
+// Apply authentication middleware to all routes
+app.use(authMiddleware);
+
+// API routes (with optional caching for GET requests)
+// Uncomment cacheMiddleware when Redis is configured
+// app.use('/api/properties', cacheMiddleware(60)); // Cache for 60 seconds
+app.use('/api', apiRoutes);
+
+// Images route - add this before the EJS routes
+app.get('/images', (req, res) => {
+  try {
+    // Define path to image directory - assuming images are in public/images
+    const imagesDir = path.join(__dirname, 'public', 'images');
+    
+    // Read directory contents
+    fs.readdir(imagesDir, (err, files) => {
+      if (err) {
+        console.error('Error reading image directory:', err);
+        return res.status(500).json({ error: 'Failed to read images' });
+      }
+      
+      // Filter for image files (add more extensions if needed)
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      const imageFiles = files.filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return imageExtensions.includes(ext);
+      });
+      
+      // Convert filenames to URLs
+      const imageUrls = imageFiles.map(file => `/images/${file}`);
+      
+      // Return the list of image URLs
+      res.json({ images: imageUrls });
+    });
+  } catch (error) {
+    console.error('Error processing images request:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// EJS routes
+app.get('/', (req, res) => {
+  res.render('home');
+});
+
+app.get('/about', (req, res) => {
+  res.render('about');
+});
+
+app.get('/contact', (req, res) => {
+  res.render('contact');
+});
+
+app.get('/listings', async (req, res) => {
+  try {
+    const properties = await Property.find().populate('owner');
+    res.render('listings', { properties });
+  } catch (err) {
+    console.error(err);
+    res.render('listings', { properties: [] });
+  }
+});
+
+app.get('/login', (req, res) => {
+  // If already logged in, redirect to home
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('login');
+});
+
+app.get('/register', (req, res) => {
+  // If already logged in, redirect to home
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('register');
+});
+
+// Remove the basic /search route since it's now handled in the API routes
+// The /api/search route will handle both GET and POST requests
+
+app.get('/view-property/:id', async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id).populate('owner');
+    if (!property) {
+      return res.status(404).send('Property not found');
+    }
+    res.render('view_property', { property });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+app.get('/dashboard', async (req, res) => {
+  try {
+    const properties = await Property.find({ owner: req.session.user._id });
+    res.render('dashboard', { properties });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/login');
+});
+
+// Handle 404 errors
+app.use((req, res) => {
+  res.status(404).send('404 - Page Not Found');
+});
+
+// Error handling middleware
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`[Server] Running at http://localhost:${PORT}`);
+  console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`[WebSocket] Socket.IO initialized`);
+  console.log(`[Health] Check endpoint available at http://localhost:${PORT}/health`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('[Server] SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('[Server] Server closed');
+    mongoose.connection.close();
+    process.exit(0);
+  });
+});
+
+// Export server for testing purposes
+module.exports = server;
