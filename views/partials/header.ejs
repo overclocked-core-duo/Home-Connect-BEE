@@ -18,6 +18,9 @@
                     <li><a href="/">Home</a></li>
                     <li><a href="/listings">Listings</a></li>
                     <li><a href="/api/search">Search</a></li>
+                    <% if(typeof user !== 'undefined' && user) { %>
+                        <li><a href="/db">Database</a></li>
+                    <% } %>
                 </ul>
             </nav>
         </div>

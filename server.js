@@ -232,6 +232,65 @@ app.get('/dashboard', async (req, res) => {
   }
 });
 
+// Database viewer route
+app.get('/db', async (req, res) => {
+  try {
+    const pg = require('./db/postgres');
+    const maria = require('./db/mariadb');
+    
+    // Initialize data structure
+    const data = {
+      mongodb: { properties: [], users: [], error: null },
+      postgres: { users: [], error: null },
+      mariadb: { users: [], error: null }
+    };
+    
+    const stats = {
+      mongodb: { total: 0, connected: false },
+      postgres: { total: 0, connected: false },
+      mariadb: { total: 0, connected: false },
+      redis: { total: 0, connected: false }
+    };
+    
+    // Fetch MongoDB data
+    try {
+      if (mongoose.connection.readyState === 1) {
+        stats.mongodb.connected = true;
+        data.mongodb.properties = await Property.find().limit(100).lean();
+        data.mongodb.users = await User.find().limit(100).lean();
+        stats.mongodb.total = data.mongodb.properties.length + data.mongodb.users.length;
+      }
+    } catch (err) {
+      data.mongodb.error = err.message;
+    }
+    
+    // Fetch PostgreSQL data
+    try {
+      const pgResult = await pg.query('SELECT id, name, email, created_at FROM demo_users LIMIT 100');
+      data.postgres.users = pgResult.rows;
+      stats.postgres.total = data.postgres.users.length;
+      stats.postgres.connected = true;
+    } catch (err) {
+      data.postgres.error = err.message;
+    }
+    
+    // Fetch MariaDB data
+    try {
+      const mariaRows = await maria.query('SELECT id, name, email, created_at FROM demo_users LIMIT 100');
+      data.mariadb.users = mariaRows;
+      stats.mariadb.total = mariaRows.length;
+      stats.mariadb.connected = true;
+    } catch (err) {
+      data.mariadb.error = err.message;
+    }
+    
+    res.render('database', { data, stats });
+  } catch (err) {
+    console.error('Database viewer error:', err);
+    res.status(500).send('Error loading database viewer');
+  }
+});
+
 // Logout route
 app.get('/logout', (req, res) => {
   req.session.destroy();
