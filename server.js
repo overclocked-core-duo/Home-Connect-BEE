@@ -12,12 +12,16 @@ const apiRoutes = require('./api/apiRoutes');
 const authRoutes = require('./routes/auth');
 const dbTestRoutes = require('./routes/dbTest');
 const notificationTestRoutes = require('./routes/notificationTest');
+const redisRoutes = require('./routes/redisRoutes');
 const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const jwtAuthMiddleware = require('./middlewares/authMiddleware');
 const roleMiddleware = require('./middlewares/roleMiddleware');
 const cacheMiddleware = require('./middlewares/cacheMiddleware');
 const httpsRedirect = require('./middlewares/httpsRedirect');
+
+// Import HTTPS server creator
+const { createHTTPSServer } = require('./security/httpsServer');
 
 // Import models
 const Property = require('./models/mongodb/Property');
@@ -35,8 +39,9 @@ const { initializeSocket, notifyNewProperty } = require('./websocket/socket');
 const app = express();
 const server = http.createServer(app);
 
-// Initialize WebSocket
+// Initialize WebSocket on HTTP server
 const io = initializeSocket(server);
+
 
 // Make io available to routes
 app.set('io', io);
@@ -72,7 +77,7 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ 
+  store: MongoStore.create({
     mongoUrl: MONGO_URL,
     ttl: 14 * 24 * 60 * 60 // 14 days
   }),
@@ -91,8 +96,8 @@ app.use(logger);
 
 // Health check endpoint (no authentication required)
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development'
@@ -108,18 +113,21 @@ app.use('/db', dbTestRoutes);
 // Notification test routes (no authentication required for testing)
 app.use('/api/test', notificationTestRoutes);
 
+// Redis API routes (no authentication required for testing/demo purposes)
+app.use('/api/redis', redisRoutes);
+
 // Authentication middleware
 const authMiddleware = (req, res, next) => {
   // Skip authentication for login and register routes
-  if (req.path === '/login' || req.path === '/register' || 
-      req.path === '/api/login' || req.path === '/api/register') {
+  if (req.path === '/login' || req.path === '/register' ||
+    req.path === '/api/login' || req.path === '/api/register') {
     return next();
   }
-  
+
   if (!req.session.user) {
     return res.redirect('/login');
   }
-  
+
   // Make user data available to all views
   res.locals.user = req.session.user;
   next();
@@ -138,24 +146,24 @@ app.get('/images', (req, res) => {
   try {
     // Define path to image directory - assuming images are in public/images
     const imagesDir = path.join(__dirname, 'public', 'images');
-    
+
     // Read directory contents
     fs.readdir(imagesDir, (err, files) => {
       if (err) {
         console.error('Error reading image directory:', err);
         return res.status(500).json({ error: 'Failed to read images' });
       }
-      
+
       // Filter for image files (add more extensions if needed)
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
       const imageFiles = files.filter(file => {
         const ext = path.extname(file).toLowerCase();
         return imageExtensions.includes(ext);
       });
-      
+
       // Convert filenames to URLs
       const imageUrls = imageFiles.map(file => `/images/${file}`);
-      
+
       // Return the list of image URLs
       res.json({ images: imageUrls });
     });
@@ -180,7 +188,32 @@ app.get('/contact', (req, res) => {
 
 app.get('/listings', async (req, res) => {
   try {
+    // Try to get from cache first
+    const { getCache, setCache } = require('./db/redis');
+    const cacheKey = 'ejs:listings';
+
+    try {
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        console.log('[Cache] HIT: EJS listings page');
+        const properties = JSON.parse(cachedData);
+        return res.render('listings', { properties });
+      }
+    } catch (cacheErr) {
+      console.log('[Cache] Redis not available, fetching from DB');
+    }
+
+    // Cache miss - fetch from database
+    console.log('[Cache] MISS: EJS listings page');
     const properties = await Property.find().populate('owner');
+
+    // Cache the result for 60 seconds
+    try {
+      await setCache(cacheKey, JSON.stringify(properties), 60);
+    } catch (cacheErr) {
+      // Silently fail if Redis is not available
+    }
+
     res.render('listings', { properties });
   } catch (err) {
     console.error(err);
@@ -230,26 +263,36 @@ app.get('/dashboard', async (req, res) => {
   }
 });
 
+// Redis Cache Dashboard
+app.get('/redis-dashboard', (req, res) => {
+  res.render('redis-dashboard');
+});
+
+// Browser Cache Viewer
+app.get('/cache-viewer', (req, res) => {
+  res.render('cache-viewer');
+});
+
 // Database viewer route
 app.get('/db', async (req, res) => {
   try {
     const pg = require('./db/postgres');
     const maria = require('./db/mariadb');
-    
+
     // Initialize data structure
     const data = {
       mongodb: { properties: [], users: [], error: null },
       postgres: { users: [], error: null },
       mariadb: { users: [], error: null }
     };
-    
+
     const stats = {
       mongodb: { total: 0, connected: false },
       postgres: { total: 0, connected: false },
       mariadb: { total: 0, connected: false },
       redis: { total: 0, connected: false }
     };
-    
+
     // Fetch MongoDB data
     try {
       if (mongoose.connection.readyState === 1) {
@@ -261,7 +304,7 @@ app.get('/db', async (req, res) => {
     } catch (err) {
       data.mongodb.error = err.message;
     }
-    
+
     // Fetch PostgreSQL data
     try {
       const pgResult = await pg.query('SELECT id, name, email, created_at FROM demo_users LIMIT 100');
@@ -271,7 +314,7 @@ app.get('/db', async (req, res) => {
     } catch (err) {
       data.postgres.error = err.message;
     }
-    
+
     // Fetch MariaDB data
     try {
       const mariaRows = await maria.query('SELECT id, name, email, created_at FROM demo_users LIMIT 100');
@@ -281,7 +324,7 @@ app.get('/db', async (req, res) => {
     } catch (err) {
       data.mariadb.error = err.message;
     }
-    
+
     res.render('database', { data, stats });
   } catch (err) {
     console.error('Database viewer error:', err);
@@ -299,7 +342,7 @@ app.get('/logout', (req, res) => {
 app.get('/api/test/cache', cacheMiddleware(30), async (req, res) => {
   // Simulate expensive operation
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   res.json({
     message: 'This response should be cached for 30 seconds',
     timestamp: new Date().toISOString(),
@@ -356,13 +399,44 @@ app.use(errorHandler);
 })();
 
 const PORT = process.env.PORT || 8080;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
+
+// Start HTTP server
 server.listen(PORT, () => {
-  console.log(`[Server] Running at http://localhost:${PORT}`);
+  console.log('');
+  console.log('====================================');
+  console.log('  🏠 Home-Connect Server Started');
+  console.log('====================================');
+  console.log(`[HTTP] ✓ Server running at http://localhost:${PORT}`);
   console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[WebSocket] Socket.IO initialized`);
-  console.log(`[Health] Check endpoint available at http://localhost:${PORT}/health`);
-  console.log(`[Database] Test endpoints available at http://localhost:${PORT}/db/*`);
+  console.log(`[WebSocket] ✓ Socket.IO initialized on HTTP`);
+  console.log(`[Health] Check endpoint: http://localhost:${PORT}/health`);
+  console.log(`[Database] Test endpoints: http://localhost:${PORT}/db/*`);
+  console.log('');
 });
+
+// Try to start HTTPS server if certificates are available
+const httpsServer = createHTTPSServer(app, path.join(__dirname));
+
+if (httpsServer) {
+  // Initialize WebSocket on HTTPS server as well
+  const ioHttps = initializeSocket(httpsServer);
+  app.set('ioHttps', ioHttps);
+
+  httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`[HTTPS] ✓ Secure server running at https://localhost:${HTTPS_PORT}`);
+    console.log(`[WebSocket] ✓ Socket.IO initialized on HTTPS`);
+    console.log(`[HTTPS] Visit: https://localhost:${HTTPS_PORT}`);
+    console.log('[HTTPS] Note: Browser will show security warning for self-signed certificates');
+    console.log('');
+    console.log('To enable HTTPS redirect from HTTP, set HTTPS_ENABLED=true in .env');
+    console.log('====================================');
+    console.log('');
+  });
+} else {
+  console.log('====================================');
+  console.log('');
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

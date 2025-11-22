@@ -1,143 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>View Property</title>
-   
+
    <!-- custom css file link -->
    <link rel="stylesheet" href="css/style.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
+
 <body>
-   
-<!-- header section starts -->
-<%- include('partials/header') %>
 
-<!-- property image section starts -->
-<section class="property-images">
-   <h1>Property Images</h1>
-   <div class="image-gallery" id="image-gallery">
-      <!-- Images will be inserted here dynamically -->
-   </div>
-</section>
+   <!-- header section starts -->
+   <%- include('partials/header') %>
 
-<!-- footer section starts -->
-<%- include('partials/footer') %>
+      <!-- property image section starts -->
+      <section class="property-images">
+         <h1>Property Images</h1>
+         <div class="image-gallery" id="image-gallery">
+            <!-- Images will be inserted here dynamically -->
+         </div>
+      </section>
 
-<!-- custom js file link -->
-<script src="js/script.js"></script>
+      <!-- footer section starts -->
+      <%- include('partials/footer') %>
 
-<script>
-   // Function to fetch images from the server
-   async function fetchImages() {
-      try {
-         const response = await fetch('/images');
-         const data = await response.json();
-         
-         if (data && data.images && data.images.length > 0) {
-            displayImages(data.images);
-         } else {
-            document.getElementById('image-gallery').innerHTML = '<p>No images available</p>';
-         }
-      } catch (error) {
-         console.error('Error fetching images:', error);
-         document.getElementById('image-gallery').innerHTML = '<p>Failed to load images</p>';
-      }
-   }
-   
-   // Function to display images in the gallery
-   function displayImages(images) {
-      const gallery = document.getElementById('image-gallery');
-      gallery.innerHTML = '';
-      
-      const categories = {
-         'bathroom': [],
-         'hall': [],
-         'house': [],
-         'kitchen': []
-      };
-      
-      // Group images by category
-      images.forEach(image => {
-         // Only include actual property images (exclude icons, steps, pics, etc.)
-         if (image.includes('bathroom-img')) {
-            categories.bathroom.push(image);
-         } else if (image.includes('hall-img')) {
-            categories.hall.push(image);
-         } else if (image.includes('house-img')) {
-            categories.house.push(image);
-         } else if (image.includes('kitchen-img')) {
-            categories.kitchen.push(image);
-         }
-      });
-      
-      // Create section for each category
-      for (const [category, categoryImages] of Object.entries(categories)) {
-         if (categoryImages.length > 0) {
-            // Create category heading
-            const categoryHeading = document.createElement('h2');
-            categoryHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-            gallery.appendChild(categoryHeading);
-            
-            // Create category container
-            const categoryContainer = document.createElement('div');
-            categoryContainer.className = 'category-container';
-            
-            // Add images to this category
-            categoryImages.forEach(image => {
-               const card = createImageCard(image);
-               categoryContainer.appendChild(card);
-            });
-            
-            gallery.appendChild(categoryContainer);
-         }
-      }
-   }
-   
-   // Function to create an image card
-   function createImageCard(imageUrl) {
-      const card = document.createElement('div');
-      card.className = 'image-card';
-      
-      const img = document.createElement('img');
-      img.src = imageUrl;
-      img.alt = 'Property Image';
-      img.loading = 'lazy';
-      
-      card.appendChild(img);
-      
-      // Add click event to show image in full size
-      card.addEventListener('click', () => {
-         showImageFullScreen(imageUrl);
-      });
-      
-      return card;
-   }
-   
-   // Function to show image in full screen
-   function showImageFullScreen(imageUrl) {
-      const overlay = document.createElement('div');
-      overlay.className = 'image-overlay';
-      
-      const fullImg = document.createElement('img');
-      fullImg.src = imageUrl;
-      fullImg.alt = 'Full size image';
-      
-      overlay.appendChild(fullImg);
-      document.body.appendChild(overlay);
-      
-      // Close on click
-      overlay.addEventListener('click', () => {
-         document.body.removeChild(overlay);
-      });
-   }
-   
-   // Load images when page loads
-   document.addEventListener('DOMContentLoaded', fetchImages);
-</script>
+         <!-- custom js file link -->
+         <script src="js/script.js"></script>
+
+         <script>
+            // Function to fetch images from the server
+            async function fetchImages() {
+               try {
+                  const response = await fetch('/images');
+                  const data = await response.json();
+
+                  if (data && data.images && data.images.length > 0) {
+                     displayImages(data.images);
+                  } else {
+                     document.getElementById('image-gallery').innerHTML = '<p>No images available</p>';
+                  }
+               } catch (error) {
+                  console.error('Error fetching images:', error);
+                  document.getElementById('image-gallery').innerHTML = '<p>Failed to load images</p>';
+               }
+            }
+
+            // Function to display images in the gallery
+            function displayImages(images) {
+               const gallery = document.getElementById('image-gallery');
+               gallery.innerHTML = '';
+
+               const categories = {
+                  'bathroom': [],
+                  'hall': [],
+                  'house': [],
+                  'kitchen': []
+               };
+
+               // Group images by category
+               images.forEach(image => {
+                  // Only include actual property images (exclude icons, steps, pics, etc.)
+                  if (image.includes('bathroom-img')) {
+                     categories.bathroom.push(image);
+                  } else if (image.includes('hall-img')) {
+                     categories.hall.push(image);
+                  } else if (image.includes('house-img')) {
+                     categories.house.push(image);
+                  } else if (image.includes('kitchen-img')) {
+                     categories.kitchen.push(image);
+                  }
+               });
+
+               // Create section for each category
+               for (const [category, categoryImages] of Object.entries(categories)) {
+                  if (categoryImages.length > 0) {
+                     // Create category heading
+                     const categoryHeading = document.createElement('h2');
+                     categoryHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                     gallery.appendChild(categoryHeading);
+
+                     // Create category container
+                     const categoryContainer = document.createElement('div');
+                     categoryContainer.className = 'category-container';
+
+                     // Add images to this category
+                     categoryImages.forEach(image => {
+                        const card = createImageCard(image);
+                        categoryContainer.appendChild(card);
+                     });
+
+                     gallery.appendChild(categoryContainer);
+                  }
+               }
+            }
+
+            // Function to create an image card
+            function createImageCard(imageUrl) {
+               const card = document.createElement('div');
+               card.className = 'image-card';
+
+               const img = document.createElement('img');
+               img.src = imageUrl;
+               img.alt = 'Property Image';
+               img.loading = 'lazy';
+
+               card.appendChild(img);
+
+               // Add click event to show image in full size
+               card.addEventListener('click', () => {
+                  showImageFullScreen(imageUrl);
+               });
+
+               return card;
+            }
+
+            // Function to show image in full screen
+            function showImageFullScreen(imageUrl) {
+               const overlay = document.createElement('div');
+               overlay.className = 'image-overlay';
+
+               const fullImg = document.createElement('img');
+               fullImg.src = imageUrl;
+               fullImg.alt = 'Full size image';
+
+               overlay.appendChild(fullImg);
+               document.body.appendChild(overlay);
+
+               // Close on click
+               overlay.addEventListener('click', () => {
+                  document.body.removeChild(overlay);
+               });
+            }
+
+            // Load images when page loads
+            document.addEventListener('DOMContentLoaded', fetchImages);
+         </script>
 
 </body>
+
 </html>

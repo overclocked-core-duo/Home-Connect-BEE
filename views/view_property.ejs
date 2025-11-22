@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title><%= property.title %> | HomeConnect</title>
+   <title>
+      <%= property.title %> | HomeConnect
+   </title>
 
    <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
@@ -13,74 +16,104 @@
    <link rel="stylesheet" href="/css/style.css">
 
 </head>
+
 <body>
-   
-<!-- header section starts  -->
-<%- include('partials/header') %>
 
-<!-- header section ends -->
+   <!-- header section starts  -->
+   <%- include('partials/header') %>
 
-<!-- view property section starts  -->
+      <!-- header section ends -->
 
-<section class="view-property">
+      <!-- view property section starts  -->
 
-   <div class="details">
-      <div class="thumb">
-         <div class="big-image">
-            <img src="/images/<%= property.image %>" alt="<%= property.title %>">
+      <section class="view-property">
+
+         <div class="details">
+            <div class="thumb">
+               <div class="big-image">
+                  <img src="/images/<%= property.image %>" alt="<%= property.title %>">
+               </div>
+               <div class="small-images">
+                  <img src="/images/<%= property.image %>" alt="<%= property.title %>">
+                  <img src="/images/hall-img-1.jpg" alt="">
+                  <img src="/images/kitchen-img-1.jpg" alt="">
+                  <img src="/images/bathroom-img-1.jpg" alt="">
+               </div>
+            </div>
+            <h3 class="name">
+               <%= property.title %>
+            </h3>
+            <p class="location"><i class="fas fa-map-marker-alt"></i><span>
+                  <%= property.location %>
+               </span></p>
+            <div class="info">
+               <p><i class="fas fa-tag"></i><span>₹<%= property.price.toLocaleString() %></span></p>
+               <p><i class="fas fa-user"></i><span>
+                     <%= property.owner.name || property.owner.username %> (owner)
+                  </span></p>
+               <p><i class="fas fa-building"></i><span>
+                     <%= property.type %>
+                  </span></p>
+               <p><i class="fas fa-house"></i><span>
+                     <%= property.offerType %>
+                  </span></p>
+               <p><i class="fas fa-calendar"></i><span>
+                     <%= new Date(property.createdAt).toLocaleDateString() %>
+                  </span></p>
+            </div>
+            <h3 class="title">details</h3>
+            <div class="flex">
+               <div class="box">
+                  <p><i>rooms :</i><span>
+                        <%= property.bedrooms %> BHK
+                     </span></p>
+                  <p><i>status :</i><span>
+                        <%= property.status %>
+                     </span></p>
+                  <p><i>bedroom :</i><span>
+                        <%= property.bedrooms %>
+                     </span></p>
+                  <p><i>bathroom :</i><span>
+                        <%= property.bathrooms %>
+                     </span></p>
+               </div>
+               <div class="box">
+                  <p><i>carpet area :</i><span>
+                        <%= property.area %>sqft
+                     </span></p>
+                  <p><i>furnished :</i><span>
+                        <%= property.furnishingStatus %>
+                     </span></p>
+               </div>
+            </div>
+            <h3 class="title">description</h3>
+            <p class="description">
+               <%= property.description || 'No description available for this property.' %>
+            </p>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px; padding: 0 25px;">
+               <% if (user && property.owner._id.toString()===user._id.toString()) { %>
+                  <form action="/api/properties/delete/<%= property._id %>" method="POST" style="flex: 1;">
+                     <input type="submit" value="Delete Property" class="inline-btn"
+                        style="background-color: #dc3545; width: 100%;"
+                        onclick="return confirm('Are you sure you want to delete this property?')">
+                  </form>
+                  <% } %>
+            </div>
          </div>
-         <div class="small-images">
-            <img src="/images/<%= property.image %>" alt="<%= property.title %>">
-            <img src="/images/hall-img-1.jpg" alt="">
-            <img src="/images/kitchen-img-1.jpg" alt="">
-            <img src="/images/bathroom-img-1.jpg" alt="">
-         </div>
-      </div>
-      <h3 class="name"><%= property.title %></h3>
-      <p class="location"><i class="fas fa-map-marker-alt"></i><span><%= property.location %></span></p>
-      <div class="info">
-         <p><i class="fas fa-tag"></i><span>₹<%= property.price.toLocaleString() %></span></p>
-         <p><i class="fas fa-user"></i><span><%= property.owner.name || property.owner.username %> (owner)</span></p>
-         <p><i class="fas fa-building"></i><span><%= property.type %></span></p>
-         <p><i class="fas fa-house"></i><span><%= property.offerType %></span></p>
-         <p><i class="fas fa-calendar"></i><span><%= new Date(property.createdAt).toLocaleDateString() %></span></p>
-      </div>
-      <h3 class="title">details</h3>
-      <div class="flex">
-         <div class="box">
-            <p><i>rooms :</i><span><%= property.bedrooms %> BHK</span></p>
-            <p><i>status :</i><span><%= property.status %></span></p>
-            <p><i>bedroom :</i><span><%= property.bedrooms %></span></p>
-            <p><i>bathroom :</i><span><%= property.bathrooms %></span></p>
-         </div>
-         <div class="box">
-            <p><i>carpet area :</i><span><%= property.area %>sqft</span></p>
-            <p><i>furnished :</i><span><%= property.furnishingStatus %></span></p>
-         </div>
-      </div>
-      <h3 class="title">description</h3>
-      <p class="description"><%= property.description || 'No description available for this property.' %></p>
-      
-      <div style="display: flex; gap: 10px; margin-top: 20px; padding: 0 25px;">
-         <% if (user && property.owner._id.toString() === user._id.toString()) { %>
-            <form action="/api/properties/delete/<%= property._id %>" method="POST" style="flex: 1;">
-               <input type="submit" value="Delete Property" class="inline-btn" style="background-color: #dc3545; width: 100%;" onclick="return confirm('Are you sure you want to delete this property?')">
-            </form>
-         <% } %>
-      </div>
-   </div>
 
-</section>
+      </section>
 
-<!-- view property section ends -->
- 
-<!-- footer section starts  -->
- <%- include('partials/footer')  %>
-<!-- footer section ends -->
+      <!-- view property section ends -->
+
+      <!-- footer section starts  -->
+      <%- include('partials/footer') %>
+         <!-- footer section ends -->
 
 
-<!-- custom js file link  -->
-<script src="/js/script.js"></script>
+         <!-- custom js file link  -->
+         <script src="/js/script.js"></script>
 
 </body>
+
 </html>

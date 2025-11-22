@@ -25,14 +25,14 @@
         <!-- Right section with login/register or user options -->
         <div class="header-section right-section">
             <ul class="nav-links">
-                <% if(typeof user !== 'undefined' && user) { %>
+                <% if(typeof user !=='undefined' && user) { %>
                     <!-- Notification Bell -->
                     <li class="notification-container">
                         <a href="#" class="notification-bell" id="notification-bell">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notification-badge">0</span>
                         </a>
-                        
+
                         <!-- Notification Dropdown -->
                         <div class="notification-dropdown" id="notification-dropdown">
                             <div class="notification-header">
@@ -46,26 +46,31 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div class="notification-list" id="notification-list">
                                 <div class="no-notifications">
                                     <i class="fas fa-bell-slash"></i>
                                     <p>No notifications yet</p>
                                 </div>
                             </div>
-                            
+
                             <div class="notification-footer">
                                 <a href="#" id="view-all-notifications">View all notifications</a>
                             </div>
                         </div>
                     </li>
                     <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/redis-dashboard">Redis Cache</a></li>
+                    <li><a href="/cache-viewer">Browser Cache</a></li>
                     <li><a href="/api/logout">Logout</a></li>
-                <% } else { %>
-                    <li><a href="/login">Login</a></li>
-                    <li><a href="/register">Register</a></li>
-                <% } %>
+                    <% } else { %>
+                        <li><a href="/login">Login</a></li>
+                        <li><a href="/register">Register</a></li>
+                        <% } %>
             </ul>
         </div>
     </div>
+
+    <!-- Include browser cache utility -->
+    <script src="/js/browser-cache.js"></script>
 </header>

@@ -12,6 +12,13 @@ A full-stack real estate platform with real-time notifications, multi-database s
 - 🔍 **Advanced Search** - Filter properties by price, location, and type
 - 📊 **Database Viewer** - Admin dashboard to view database status
 
+### 🆕 New Features
+
+- 🔒 **SSL/HTTPS Support** - Run server over HTTPS with self-signed or production certificates
+- 💨 **Redis Caching Dashboard** - Real-time visualization of cached data and statistics
+- 🧪 **Integration Testing** - Browser-based automated testing with Jest and Puppeteer
+- 🗂️ **Browser Caching** - localStorage and sessionStorage management with UI viewer
+
 ## Tech Stack
 
 ### Backend
@@ -231,15 +238,21 @@ http://localhost:3000
 
 ### Available Routes
 
-- **Home** - `http://localhost:3000/`
-- **Properties** - `http://localhost:3000/listings`
-- **Search** - `http://localhost:3000/search`
-- **Login** - `http://localhost:3000/login`
-- **Register** - `http://localhost:3000/register`
-- **Dashboard** - `http://localhost:3000/dashboard` (requires login)
-- **Database Viewer** - `http://localhost:3000/db` (requires login)
-- **About** - `http://localhost:3000/about`
-- **Contact** - `http://localhost:3000/contact`
+- **Home** - `http://localhost:8080/`
+- **Properties** - `http://localhost:8080/listings`
+- **Search** - `http://localhost:8080/search`
+- **Login** - `http://localhost:8080/login`
+- **Register** - `http://localhost:8080/register`
+- **Dashboard** - `http://localhost:8080/dashboard` (requires login)
+- **Database Viewer** - `http://localhost:8080/db` (requires login)
+- **About** - `http://localhost:8080/about`
+- **Contact** - `http://localhost:8080/contact`
+
+#### 🆕 New Pages
+
+- **Redis Dashboard** - `http://localhost:8080/redis-dashboard` - View cache statistics and  managecached keys
+- **Browser Cache Viewer** - `http://localhost:8080/cache-viewer` - View localStorage/sessionStorage data
+- **HTTPS** - `https://localhost:8443/` - Access via HTTPS (after generating SSL certificates)
 
 ### API Endpoints
 
@@ -247,6 +260,13 @@ http://localhost:3000
 - **Properties API** - `GET /api/properties`
 - **Database Tests** - `GET /api/db-test/*`
 - **Notification Tests** - `GET /api/test/notification/*`
+
+#### 🆕 New API Endpoints
+
+- **Redis Stats** - `GET /api/redis/stats` - Get cache statistics
+- **Redis Keys** - `GET /api/redis/keys` - List all cached keys
+- **Redis Key Details** - `GET /api/redis/key/:key` - Get specific key details
+- **Clear Cache** - `DELETE /api/redis/clear` - Clear all cached data
 
 ## Testing Real-time Notifications
 
@@ -383,6 +403,179 @@ Visit `/db` while logged in to see:
 - PostgreSQL tables (if configured)
 - MariaDB tables (if configured)
 - Redis status (if configured)
+
+## 🆕 SSL/HTTPS Setup
+
+The application supports HTTPS encryption for secure communication.
+
+### Generate Self-Signed Certificates (Development)
+
+1. Run the certificate generation script:
+   ```bash
+   ./generate-ssl-cert.sh
+   ```
+
+2. Follow the prompts to enter certificate details (or press Enter for defaults)
+
+3. The script will create `server.key` and `server.cert` files
+
+4. Restart the server:
+   ```bash
+   npm start
+   ```
+
+5. Access via HTTPS:
+   ```
+   https://localhost:8443
+   ```
+
+**Note:** Browsers will show a security warning for self-signed certificates. This is normal for development. Click "Advanced" and "Proceed to localhost" to access the site.
+
+### Production Certificates
+
+For production, use certificates from a trusted Certificate Authority:
+
+1. **Let's Encrypt** (Free):
+   ```bash
+   certbot certonly --standalone -d yourdomain.com
+   ```
+
+2. Update `.env` with certificate paths:
+   ```env
+   SSL_CERT_PATH=/etc/letsencrypt/live/yourdomain.com
+   ```
+
+3. Enable HTTPS redirect by settingenvironment variable:
+   ```env
+   HTTPS_ENABLED=true
+   ```
+
+## 🆕 Redis Caching Dashboard
+
+The Redis dashboard provides real-time visualization of cached data.
+
+### Access the Dashboard
+
+1. Ensure Redis is running:
+   ```bash
+   redis-cli ping  # Should return "PONG"
+   ```
+
+2. Login to the application
+
+3. Visit: `http://localhost:8080/redis-dashboard`
+
+### Features
+
+- **Real-time Statistics**: Total keys, cache hit rate, memory usage
+- **Cached Keys List**: View all cached keys with TTL countdown
+- **Key Management**: View details, delete individual keys  
+- **Auto-refresh**: Automatically updates every 5-30 seconds
+- **Clear All Cache**: Flush all cached data with one click
+
+### Where Data is Cached
+
+The application automatically caches:
+- **Property Listings** (`cache:/api/properties`) - 60 seconds TTL
+- **User Data** - As needed
+- **API Responses** - GET requests with caching middleware
+
+## 🆕 Integration Testing
+
+Browser-based automated tests using Jest and Puppeteer.
+
+### Running Tests
+
+Run all tests:
+```bash
+npm test
+```
+
+Run only integration tests:
+```bash
+npm run test:integration
+```
+
+Watch mode for development:
+```bash
+npm run test:watch
+```
+
+### Test Coverage
+
+**Authentication Tests** (`tests/integration/auth.test.js`):
+- User registration flow
+- User login with valid credentials
+- Invalid credentials handling
+- Session persistence across navigation
+
+**Property Tests** (`tests/integration/property.test.js`):
+- Property listings page loading
+- API endpoint accessibility
+- Search functionality
+
+**Redis Cache Tests** (`tests/integration/redis-cache.test.js`):
+- Cache statistics API
+- Cached keys retrieval
+- Cache behavior verification
+- Redis dashboard functionality
+
+### Test Requirements
+
+- Server must be running on `http://localhost:8080`
+- MongoDB must be available
+- Redis should be running (for cache tests)
+
+### Viewing Tests in Browser
+
+To see tests running in the browser:
+```bash
+HEADLESS=false npm test
+```
+
+## 🆕 Browser Caching
+
+Client-side caching using localStorage and sessionStorage with a management UI.
+
+### Using Browser Cache
+
+The application automatically caches:
+- User preferences
+- Session data
+- Recent searches
+
+### Browser Cache Viewer
+
+Visit `/cache-viewer` to:
+- View all localStorage items with expiration times
+- View all sessionStorage items
+- See item sizes and timestamps
+- Delete individual cached items
+- Clear all cache data
+
+### For Developers
+
+Use the `BrowserCache` utility in your JavaScript:
+
+```javascript
+// Set item in localStorage with  15-minute expiration
+BrowserCache.setLocal('myKey', {data: 'value'}, 15);
+
+// Get item from localStorage
+const data = BrowserCache.getLocal('myKey');
+
+// Set item in sessionStorage
+BrowserCache.setSession('tempKey', 'tempValue');
+
+// Get item from sessionStorage
+const temp = BrowserCache.getSession('tempKey');
+
+// Clear all localStorage
+BrowserCache.clearLocal();
+```
+
+The utility is globally available on all pages via `window.BrowserCache`.
+
 
 ## Security Notes
 
