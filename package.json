@@ -3,18 +3,11 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "jest --detectOpenHandles --forceExit",
-    "test:integration": "jest tests/integration --detectOpenHandles --forceExit",
-    "test:watch": "jest --watch",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
     "start": "node server.js",
     "dev": "nodemon server.js"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testTimeout": 30000,
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ]
   },
   "keywords": [],
   "author": "",
@@ -44,9 +37,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "puppeteer": "^21.11.0"
+    "@playwright/test": "^1.48.2"
   },
   "description": ""
 }
