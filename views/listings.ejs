@@ -5,7 +5,7 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>All Listings</title>
+   <title>Properties | HomeConnect</title>
 
    <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
@@ -69,71 +69,168 @@
 
       <section class="listings">
 
-         <h1 class="heading">all listings</h1>
+         <h1 class="heading">Browse Properties</h1>
 
-         <div class="box-container" id="properties-container">
-            <% if (properties && properties.length> 0) { %>
-               <% properties.forEach(property=> { %>
-                  <div class="box">
-                     <div class="admin">
-                        <h3>
-                           <%= property.owner.username.charAt(0).toUpperCase() %>
-                        </h3>
-                        <div>
-                           <p>
-                              <%= property.owner.name || property.owner.username %>
-                           </p>
-                           <span>
-                              <%= new Date(property.createdAt).toLocaleDateString() %>
-                           </span>
-                        </div>
-                     </div>
-                     <div class="thumb">
-                        <p class="type">
-                           <span>
-                              <%= property.type %>
-                           </span>
-                           <span>
-                              <%= property.offerType %>
-                           </span>
-                        </p>
-                        <img src="images/<%= property.image %>" alt="<%= property.title %>">
-                     </div>
-                     <h3 class="name">
-                        <%= property.title %>
-                     </h3>
-                     <p class="location"><i class="fas fa-map-marker-alt"></i><span>
-                           <%= property.location %>
-                        </span></p>
-                     <div class="flex">
-                        <p><i class="fas fa-bed"></i><span>
-                              <%= property.bedrooms %>
-                           </span></p>
-                        <p><i class="fas fa-bath"></i><span>
-                              <%= property.bathrooms %>
-                           </span></p>
-                        <p><i class="fas fa-maximize"></i><span>
-                              <%= property.area %>sqft
-                           </span></p>
-                     </div>
-                     <div class="flex"
-                        style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <p style="font-size: 1.2rem; font-weight: bold; color: #2c6bed;">₹<%=
-                              property.price.toLocaleString() %>
-                        </p>
-                        <p style="font-size: 0.9rem;">
-                           <%= property.status %>
-                        </p>
-                     </div>
-                     <a href="/view-property/<%= property._id %>" class="btn">view property</a>
+         <div class="listings-page-container">
+
+            <!-- Sidebar Filter Section -->
+            <aside class="listings-sidebar">
+               <div class="sidebar-heading">
+                  <span>Filters</span>
+                  <i class="fas fa-filter"></i>
+               </div>
+
+               <form action="/listings" method="GET">
+                  <div class="filter-group">
+                     <label>Location</label>
+                     <input type="text" name="location" value="<%= filters.location || '' %>"
+                        placeholder="Enter city..." class="filter-input">
                   </div>
-                  <% }); %>
-                     <% } else { %>
-                        <div style="text-align: center; width: 100%; padding: 20px;">
-                           <p>No properties found. Be the first to add a property listing!</p>
-                           <a href="/dashboard" class="btn" style="margin-top: 10px;">Add Property</a>
+
+                  <div class="filter-group">
+                     <label>Offer Type</label>
+                     <select name="offer" class="filter-input">
+                        <option value="">Any</option>
+                        <option value="sale" <%=(filters.offer==='sale' ) ? 'selected' : '' %>>Sale</option>
+                        <option value="resale" <%=(filters.offer==='resale' ) ? 'selected' : '' %>>Resale</option>
+                        <option value="rent" <%=(filters.offer==='rent' ) ? 'selected' : '' %>>Rent</option>
+                     </select>
+                  </div>
+
+                  <div class="filter-group">
+                     <label>Property Type</label>
+                     <select name="type" class="filter-input">
+                        <option value="">Any</option>
+                        <option value="flat" <%=(filters.type==='flat' ) ? 'selected' : '' %>>Flat</option>
+                        <option value="house" <%=(filters.type==='house' ) ? 'selected' : '' %>>House</option>
+                        <option value="shop" <%=(filters.type==='shop' ) ? 'selected' : '' %>>Shop</option>
+                     </select>
+                  </div>
+
+                  <div class="filter-group">
+                     <label>BHK</label>
+                     <select name="bhk" class="filter-input">
+                        <option value="">Any</option>
+                        <option value="1" <%=(filters.bhk==='1' ) ? 'selected' : '' %>>1 BHK</option>
+                        <option value="2" <%=(filters.bhk==='2' ) ? 'selected' : '' %>>2 BHK</option>
+                        <option value="3" <%=(filters.bhk==='3' ) ? 'selected' : '' %>>3 BHK</option>
+                        <option value="4" <%=(filters.bhk==='4' ) ? 'selected' : '' %>>4 BHK</option>
+                        <option value="5" <%=(filters.bhk==='5' ) ? 'selected' : '' %>>5+ BHK</option>
+                     </select>
+                  </div>
+
+                  <div class="filter-group">
+                     <label>Min Price</label>
+                     <select name="minimum" class="filter-input">
+                        <option value="">No Min</option>
+                        <option value="500000" <%=(filters.minimum==='500000' ) ? 'selected' : '' %>>5 Lac</option>
+                        <option value="1000000" <%=(filters.minimum==='1000000' ) ? 'selected' : '' %>>10 Lac</option>
+                        <option value="2000000" <%=(filters.minimum==='2000000' ) ? 'selected' : '' %>>20 Lac</option>
+                        <option value="5000000" <%=(filters.minimum==='5000000' ) ? 'selected' : '' %>>50 Lac</option>
+                        <option value="10000000" <%=(filters.minimum==='10000000' ) ? 'selected' : '' %>>1 Cr</option>
+                     </select>
+                  </div>
+
+                  <div class="filter-group">
+                     <label>Max Price</label>
+                     <select name="maximum" class="filter-input">
+                        <option value="">No Max</option>
+                        <option value="2000000" <%=(filters.maximum==='2000000' ) ? 'selected' : '' %>>20 Lac</option>
+                        <option value="5000000" <%=(filters.maximum==='5000000' ) ? 'selected' : '' %>>50 Lac</option>
+                        <option value="10000000" <%=(filters.maximum==='10000000' ) ? 'selected' : '' %>>1 Cr</option>
+                        <option value="50000000" <%=(filters.maximum==='50000000' ) ? 'selected' : '' %>>5 Cr</option>
+                     </select>
+                  </div>
+
+                  <div class="filter-group">
+                     <label>Status</label>
+                     <select name="status" class="filter-input">
+                        <option value="">Any</option>
+                        <option value="ready to move" <%=(filters.status==='ready to move' ) ? 'selected' : '' %>>Ready
+                           to Move</option>
+                        <option value="under construction" <%=(filters.status==='under construction' ) ? 'selected' : ''
+                           %>>Under Construction</option>
+                     </select>
+                  </div>
+
+                  <button type="submit" class="filter-btn">Apply Filters</button>
+                  <a href="/listings" class="clear-filters-btn">Clear Filters</a>
+               </form>
+            </aside>
+
+            <!-- Listings Grid -->
+            <div class="listings-content">
+               <div class="box-container" id="properties-container">
+                  <% if (properties && properties.length> 0) { %>
+                     <% properties.forEach(property=> { %>
+                        <div class="box">
+                           <div class="admin">
+                              <h3>
+                                 <%= property.owner.username.charAt(0).toUpperCase() %>
+                              </h3>
+                              <div>
+                                 <p>
+                                    <%= property.owner.name || property.owner.username %>
+                                 </p>
+                                 <span>
+                                    <%= new Date(property.createdAt).toLocaleDateString() %>
+                                 </span>
+                              </div>
+                           </div>
+                           <div class="thumb">
+                              <p class="type">
+                                 <span>
+                                    <%= property.type %>
+                                 </span>
+                                 <span>
+                                    <%= property.offerType %>
+                                 </span>
+                              </p>
+                              <img src="images/<%= property.image %>" alt="<%= property.title %>">
+                           </div>
+                           <h3 class="name">
+                              <%= property.title %>
+                           </h3>
+                           <p class="location"><i class="fas fa-map-marker-alt"></i><span>
+                                 <%= property.location %>
+                              </span></p>
+                           <div class="flex">
+                              <p><i class="fas fa-bed"></i><span>
+                                    <%= property.bedrooms %>
+                                 </span></p>
+                              <p><i class="fas fa-bath"></i><span>
+                                    <%= property.bathrooms %>
+                                 </span></p>
+                              <p><i class="fas fa-maximize"></i><span>
+                                    <%= property.area %>sqft
+                                 </span></p>
+                           </div>
+                           <div class="flex"
+                              style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                              <p style="font-size: 1.2rem; font-weight: bold; color: #2c6bed;">₹<%=
+                                    property.price.toLocaleString() %>
+                              </p>
+                              <p style="font-size: 0.9rem;">
+                                 <%= property.status %>
+                              </p>
+                           </div>
+                           <a href="/view-property/<%= property._id %>" class="btn">view property</a>
                         </div>
-                        <% } %>
+                        <% }); %>
+                           <% } else { %>
+                              <div
+                                 style="text-align: center; width: 100%; padding: 40px; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                                 <i class="fas fa-search"
+                                    style="font-size: 3rem; color: #ddd; margin-bottom: 15px;"></i>
+                                 <p style="font-size: 1.1rem; color: #666;">No properties found matching your criteria.
+                                 </p>
+                                 <a href="/listings" class="btn"
+                                    style="margin-top: 15px; display: inline-block; width: auto;">Clear Filters</a>
+                              </div>
+                              <% } %>
+               </div>
+            </div>
+
          </div>
 
       </section>
@@ -171,24 +268,33 @@
                   }, duration);
                }
 
-               // Check if we loaded from cache
-               const cachedData = BrowserCache.getLocal(CACHE_KEY);
-               if (cachedData && cachedData.html === propertiesHTML) {
-                  console.log('[Browser Cache] Loaded from cache');
-                  showCacheIndicator('✓ Loaded from browser cache');
-               } else {
-                  console.log('[Browser Cache] Fresh data, caching now');
+               // Only cache if we are on the main listings page without filters
+               // We check URL search params
+               const urlParams = new URLSearchParams(window.location.search);
+               const hasFilters = Array.from(urlParams).length > 0;
 
-                  // Cache the current page data
-                  if (propertiesHTML) {
-                     BrowserCache.setLocal(CACHE_KEY, {
-                        html: propertiesHTML,
-                        timestamp: Date.now(),
-                        url: window.location.pathname
-                     }, CACHE_DURATION);
+               if (!hasFilters) {
+                  // Check if we loaded from cache
+                  const cachedData = BrowserCache.getLocal(CACHE_KEY);
+                  if (cachedData && cachedData.html === propertiesHTML) {
+                     console.log('[Browser Cache] Loaded from cache');
+                     showCacheIndicator('✓ Loaded from browser cache');
+                  } else {
+                     console.log('[Browser Cache] Fresh data, caching now');
 
-                     showCacheIndicator('✓ Data cached for 15 minutes');
+                     // Cache the current page data
+                     if (propertiesHTML) {
+                        BrowserCache.setLocal(CACHE_KEY, {
+                           html: propertiesHTML,
+                           timestamp: Date.now(),
+                           url: window.location.pathname
+                        }, CACHE_DURATION);
+
+                        showCacheIndicator('✓ Data cached for 15 minutes');
+                     }
                   }
+               } else {
+                  console.log('[Browser Cache] Filters active, skipping cache');
                }
 
                // Also cache metadata
@@ -196,8 +302,6 @@
                   timestamp: Date.now(),
                   propertyCount: document.querySelectorAll('.box').length
                }, CACHE_DURATION);
-
-               console.log('[Browser Cache] Listings page data cached in localStorage');
             })();
          </script>
 

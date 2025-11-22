@@ -2316,4 +2316,131 @@ body {
 .success-message p {
    margin: 0;
    font-weight: 500;
+}/* About Page Gradient */
+.steps-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.steps-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Listings Page Layout with Sidebar */
+.listings-page-container {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.listings-sidebar {
+    flex: 0 0 300px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.listings-content {
+    flex: 1;
+}
+
+.sidebar-heading {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+    border-color: #2c6bed;
+    box-shadow: 0 0 0 3px rgba(44, 107, 237, 0.1);
+    outline: none;
+}
+
+.filter-btn {
+    width: 100%;
+    padding: 12px;
+    background: #2c6bed;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.filter-btn:hover {
+    background: #1a5ad7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 107, 237, 0.2);
+}
+
+.clear-filters-btn {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.clear-filters-btn:hover {
+    color: #ff5a5a;
+    text-decoration: underline;
+}
+
+/* Responsive Sidebar */
+@media (max-width: 992px) {
+    .listings-page-container {
+        flex-direction: column;
+    }
+
+    .listings-sidebar {
+        width: 100%;
+        flex: none;
+        position: static;
+        max-height: none;
+    }
 }

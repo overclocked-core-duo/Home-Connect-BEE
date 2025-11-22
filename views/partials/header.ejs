@@ -1,76 +1,125 @@
 <header class="site-header">
     <div class="header-container">
-        <!-- Left section with About and Contact -->
-        <div class="header-section left-section">
+        <!-- Logo on the left -->
+        <div class="logo">
+            <a href="/">HomeConnect</a>
+        </div>
+
+        <!-- Center navigation -->
+        <nav class="main-nav">
             <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/listings">Properties</a></li>
                 <li><a href="/about">About</a></li>
                 <li><a href="/contact">Contact</a></li>
             </ul>
-        </div>
+        </nav>
 
-        <!-- Center section with logo and main navigation -->
-        <div class="header-section center-section">
-            <div class="logo">
-                <a href="/">HomeConnect</a>
-            </div>
-            <nav class="main-nav">
-                <ul class="nav-links">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/listings">Listings</a></li>
-                    <li><a href="/api/search">Search</a></li>
-                </ul>
-            </nav>
-        </div>
-
-        <!-- Right section with login/register or user options -->
+        <!-- Right section -->
         <div class="header-section right-section">
-            <ul class="nav-links">
-                <% if(typeof user !=='undefined' && user) { %>
-                    <!-- Notification Bell -->
-                    <li class="notification-container">
-                        <a href="#" class="notification-bell" id="notification-bell">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge" id="notification-badge">0</span>
-                        </a>
+            <% if(typeof user !=='undefined' && user) { %>
+                <!-- Notification Bell -->
+                <div class="notification-container" style="display: inline-block; margin-right: 15px;">
+                    <a href="#" class="notification-bell" id="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notification-badge">0</span>
+                    </a>
 
-                        <!-- Notification Dropdown -->
-                        <div class="notification-dropdown" id="notification-dropdown">
-                            <div class="notification-header">
-                                <h3>Notifications</h3>
-                                <div class="notification-actions">
-                                    <button class="mark-all-read" id="mark-all-read" title="Mark all as read">
-                                        <i class="fas fa-check-double"></i>
-                                    </button>
-                                    <button class="clear-all" id="clear-all" title="Clear all">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="notification-list" id="notification-list">
-                                <div class="no-notifications">
-                                    <i class="fas fa-bell-slash"></i>
-                                    <p>No notifications yet</p>
-                                </div>
-                            </div>
-
-                            <div class="notification-footer">
-                                <a href="#" id="view-all-notifications">View all notifications</a>
+                    <!-- Notification Dropdown -->
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <div class="notification-header">
+                            <h3>Notifications</h3>
+                            <div class="notification-actions">
+                                <button class="mark-all-read" id="mark-all-read" title="Mark all as read">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                                <button class="clear-all" id="clear-all" title="Clear all">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
-                    </li>
-                    <li><a href="/dashboard">Dashboard</a></li>
-                    <li><a href="/redis-dashboard">Redis Cache</a></li>
-                    <li><a href="/cache-viewer">Browser Cache</a></li>
-                    <li><a href="/api/logout">Logout</a></li>
-                    <% } else { %>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/register">Register</a></li>
-                        <% } %>
-            </ul>
+
+                        <div class="notification-list" id="notification-list">
+                            <div class="no-notifications">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        </div>
+
+                        <div class="notification-footer">
+                            <a href="#" id="view-all-notifications">View all notifications</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simple dropdown for user menu -->
+                <div class="user-menu" style="display: inline-block; position: relative;">
+                    <a href="#" class="user-menu-toggle" id="user-menu-toggle"
+                        style="color: #444; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <span>
+                            <%= user.name || user.username %>
+                        </span>
+                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                    </a>
+                    <ul class="user-dropdown" id="user-dropdown-menu"
+                        style="display: none; position: absolute; top: 100%; right: 0; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; padding: 8px 0; min-width: 180px; margin-top: 8px; list-style: none; z-index: 1000;">
+                        <li><a href="/dashboard"
+                                style="display: block; padding: 10px 16px; color: #444; text-decoration: none; transition: background 0.2s;"><i
+                                    class="fas fa-tachometer-alt" style="width: 20px;"></i> Dashboard</a></li>
+                        <li><a href="/redis-dashboard"
+                                style="display: block; padding: 10px 16px; color: #444; text-decoration: none; transition: background 0.2s;"><i
+                                    class="fas fa-database" style="width: 20px;"></i> Redis Cache</a></li>
+                        <li><a href="/cache-viewer"
+                                style="display: block; padding: 10px 16px; color: #444; text-decoration: none; transition: background 0.2s;"><i
+                                    class="fas fa-memory" style="width: 20px;"></i> Browser Cache</a></li>
+                        <li style="border-top: 1px solid #eee; margin: 8px 0;"></li>
+                        <li><a href="/api/logout"
+                                style="display: block; padding: 10px 16px; color: #ff5a5a; text-decoration: none; transition: background 0.2s;"><i
+                                    class="fas fa-sign-out-alt" style="width: 20px;"></i> Logout</a></li>
+                    </ul>
+                </div>
+                <% } else { %>
+                    <a href="/login"
+                        style="margin-right: 12px; color: #2c6bed; text-decoration: none; font-weight: 500;">Login</a>
+                    <a href="/register"
+                        style="padding: 10px 20px; background: #2c6bed; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">Register</a>
+                    <% } %>
         </div>
     </div>
 
     <!-- Include browser cache utility -->
     <script src="/js/browser-cache.js"></script>
+
+    <script>
+        // User menu toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('user-menu-toggle');
+            const dropdown = document.getElementById('user-dropdown-menu');
+
+            if (toggle && dropdown) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.user-menu')) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // Hover effect for dropdown items
+                const items = dropdown.querySelectorAll('a');
+                items.forEach(item => {
+                    item.addEventListener('mouseenter', function () {
+                        this.style.background = '#f5f7fa';
+                    });
+                    item.addEventListener('mouseleave', function () {
+                        this.style.background = 'transparent';
+                    });
+                });
+            }
+        });
+    </script>
 </header>

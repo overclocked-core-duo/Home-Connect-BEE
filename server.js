@@ -188,24 +188,52 @@ app.get('/contact', (req, res) => {
 
 app.get('/listings', async (req, res) => {
   try {
-    // Try to get from cache first
+    // Get filter parameters from query string
+    const {
+      location, offer, type, bhk,
+      minimum, maximum, status, furnished
+    } = req.query;
+
+    // Build query object
+    const query = {};
+
+    if (location) query.location = { $regex: location, $options: 'i' };
+    if (offer) query.offerType = offer;
+    if (type) query.type = type;
+    if (bhk) query.bedrooms = parseInt(bhk);
+
+    // Price range
+    if (minimum || maximum) {
+      query.price = {};
+      if (minimum) query.price.$gte = parseInt(minimum);
+      if (maximum) query.price.$lte = parseInt(maximum);
+    }
+
+    if (status) query.status = status;
+    if (furnished) query.furnishingStatus = furnished;
+
+    // Try to get from cache first (only if no filters are applied)
+    const isFiltered = Object.keys(query).length > 0;
     const { getCache, setCache } = require('./db/redis');
-    const cacheKey = 'ejs:listings';
+    const cacheKey = isFiltered ? `ejs:listings:${JSON.stringify(query)}` : 'ejs:listings';
 
     try {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        console.log('[Cache] HIT: EJS listings page');
+        console.log(`[Cache] HIT: EJS listings page ${isFiltered ? '(filtered)' : ''}`);
         const properties = JSON.parse(cachedData);
-        return res.render('listings', { properties });
+        return res.render('listings', {
+          properties,
+          filters: req.query // Pass current filters to view
+        });
       }
     } catch (cacheErr) {
       console.log('[Cache] Redis not available, fetching from DB');
     }
 
     // Cache miss - fetch from database
-    console.log('[Cache] MISS: EJS listings page');
-    const properties = await Property.find().populate('owner');
+    console.log(`[Cache] MISS: EJS listings page ${isFiltered ? '(filtered)' : ''}`);
+    const properties = await Property.find(query).populate('owner');
 
     // Cache the result for 60 seconds
     try {
@@ -214,15 +242,20 @@ app.get('/listings', async (req, res) => {
       // Silently fail if Redis is not available
     }
 
-    res.render('listings', { properties });
+    res.render('listings', {
+      properties,
+      filters: req.query // Pass current filters to view
+    });
   } catch (err) {
     console.error(err);
-    res.render('listings', { properties: [] });
+    res.render('listings', {
+      properties: [],
+      filters: req.query || {}
+    });
   }
 });
 
 app.get('/login', (req, res) => {
-  // If already logged in, redirect to home
   if (req.session.user) {
     return res.redirect('/');
   }
