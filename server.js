@@ -10,8 +10,6 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const apiRoutes = require('./api/apiRoutes');
 const authRoutes = require('./routes/auth');
-const dbTestRoutes = require('./routes/dbTest');
-const notificationTestRoutes = require('./routes/notificationTest');
 const redisRoutes = require('./routes/redisRoutes');
 const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
@@ -57,9 +55,11 @@ app.use(express.urlencoded({ extended: false }));
 
 // Connect to MongoDB
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/homeconnect';
-mongoose.connect(MONGO_URL)
-  .then(() => console.log('[MongoDB] Connected to MongoDB'))
-  .catch(err => console.error('[MongoDB] Could not connect to MongoDB:', err));
+if (require.main === module) {
+  mongoose.connect(MONGO_URL)
+    .then(() => console.log('[MongoDB] Connected to MongoDB'))
+    .catch(err => console.error('[MongoDB] Could not connect to MongoDB:', err));
+}
 
 // Optional: Initialize Redis for caching
 // Uncomment when Redis is available
@@ -107,14 +107,12 @@ app.get('/health', (req, res) => {
 // JWT-based authentication routes (no session auth required)
 app.use('/auth', authRoutes);
 
-// Database test routes (no authentication required for testing)
-app.use('/db', dbTestRoutes);
-
-// Notification test routes (no authentication required for testing)
-app.use('/api/test', notificationTestRoutes);
-
 // Redis API routes (no authentication required for testing/demo purposes)
 app.use('/api/redis', redisRoutes);
+
+// User routes for integration testing
+const userRoutes = require('./routes/userRoutes');
+app.use('/user', userRoutes);
 
 // Authentication middleware
 const authMiddleware = (req, res, next) => {
@@ -392,61 +390,65 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Database connection health checks (non-fatal)
-(async function checkDatabaseConnections() {
-  // Check PostgreSQL
-  try {
-    const pg = require('./db/postgres');
-    const result = await pg.query('SELECT NOW() AS now');
-    console.log('[Postgres] Connected successfully:', result.rows[0].now);
-  } catch (err) {
-    console.warn('[Postgres] Connection check failed:', err.message);
-    console.warn('[Postgres] Database endpoints will return errors until configured');
-  }
+if (require.main === module) {
+  (async function checkDatabaseConnections() {
+    // Check PostgreSQL
+    try {
+      const pg = require('./db/postgres');
+      const result = await pg.query('SELECT NOW() AS now');
+      console.log('[Postgres] Connected successfully:', result.rows[0].now);
+    } catch (err) {
+      console.warn('[Postgres] Connection check failed:', err.message);
+      console.warn('[Postgres] Database endpoints will return errors until configured');
+    }
 
-  // Check MariaDB
-  try {
-    const maria = require('./db/mariadb');
-    const rows = await maria.query('SELECT NOW() as now');
-    const time = rows[0] && (rows[0].now || Object.values(rows[0])[0]);
-    console.log('[MariaDB] Connected successfully:', time);
-  } catch (err) {
-    console.warn('[MariaDB] Connection check failed:', err.message);
-    console.warn('[MariaDB] Database endpoints will return errors until configured');
-  }
-})();
+    // Check MariaDB
+    try {
+      const maria = require('./db/mariadb');
+      const rows = await maria.query('SELECT NOW() as now');
+      const time = rows[0] && (rows[0].now || Object.values(rows[0])[0]);
+      console.log('[MariaDB] Connected successfully:', time);
+    } catch (err) {
+      console.warn('[MariaDB] Connection check failed:', err.message);
+      console.warn('[MariaDB] Database endpoints will return errors until configured');
+    }
+  })();
 
-// Check Redis connection
-(async function checkRedisConnection() {
-  try {
-    const { getRedisClient } = require('./db/redis');
-    const client = getRedisClient();
-    const pong = await client.ping();
-    const keyCount = await client.dbsize();
-    console.log(`[Redis] Connected successfully: ${pong}`);
-    console.log(`[Redis] Current keys in database: ${keyCount}`);
-    console.log('[Redis] Cache middleware is active');
-  } catch (err) {
-    console.warn('[Redis] Connection check failed:', err.message);
-    console.warn('[Redis] Caching will be disabled until Redis is configured');
-  }
-})();
+  // Check Redis connection
+  (async function checkRedisConnection() {
+    try {
+      const { getRedisClient } = require('./db/redis');
+      const client = getRedisClient();
+      const pong = await client.ping();
+      const keyCount = await client.dbsize();
+      console.log(`[Redis] Connected successfully: ${pong}`);
+      console.log(`[Redis] Current keys in database: ${keyCount}`);
+      console.log('[Redis] Cache middleware is active');
+    } catch (err) {
+      console.warn('[Redis] Connection check failed:', err.message);
+      console.warn('[Redis] Caching will be disabled until Redis is configured');
+    }
+  })();
+}
 
 const PORT = process.env.PORT || 8080;
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 
 // Start HTTP server
-server.listen(PORT, () => {
-  console.log('');
-  console.log('====================================');
-  console.log('  🏠 Home-Connect Server Started');
-  console.log('====================================');
-  console.log(`[HTTP] ✓ Server running at http://localhost:${PORT}`);
-  console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[WebSocket] ✓ Socket.IO initialized on HTTP`);
-  console.log(`[Health] Check endpoint: http://localhost:${PORT}/health`);
-  console.log(`[Database] Test endpoints: http://localhost:${PORT}/db/*`);
-  console.log('');
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log('');
+    console.log('====================================');
+    console.log('  🏠 Home-Connect Server Started');
+    console.log('====================================');
+    console.log(`[HTTP] ✓ Server running at http://localhost:${PORT}`);
+    console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[WebSocket] ✓ Socket.IO initialized on HTTP`);
+    console.log(`[Health] Check endpoint: http://localhost:${PORT}/health`);
+    console.log(`[Database] Test endpoints: http://localhost:${PORT}/db/*`);
+    console.log('');
+  });
+}
 
 // Try to start HTTPS server if certificates are available
 const httpsServer = createHTTPSServer(app, path.join(__dirname));
@@ -456,16 +458,18 @@ if (httpsServer) {
   const ioHttps = initializeSocket(httpsServer);
   app.set('ioHttps', ioHttps);
 
-  httpsServer.listen(HTTPS_PORT, () => {
-    console.log(`[HTTPS] ✓ Secure server running at https://localhost:${HTTPS_PORT}`);
-    console.log(`[WebSocket] ✓ Socket.IO initialized on HTTPS`);
-    console.log(`[HTTPS] Visit: https://localhost:${HTTPS_PORT}`);
-    console.log('[HTTPS] Note: Browser will show security warning for self-signed certificates');
-    console.log('');
-    console.log('To enable HTTPS redirect from HTTP, set HTTPS_ENABLED=true in .env');
-    console.log('====================================');
-    console.log('');
-  });
+  if (require.main === module) {
+    httpsServer.listen(HTTPS_PORT, () => {
+      console.log(`[HTTPS] ✓ Secure server running at https://localhost:${HTTPS_PORT}`);
+      console.log(`[WebSocket] ✓ Socket.IO initialized on HTTPS`);
+      console.log(`[HTTPS] Visit: https://localhost:${HTTPS_PORT}`);
+      console.log('[HTTPS] Note: Browser will show security warning for self-signed certificates');
+      console.log('');
+      console.log('To enable HTTPS redirect from HTTP, set HTTPS_ENABLED=true in .env');
+      console.log('====================================');
+      console.log('');
+    });
+  }
 } else {
   console.log('====================================');
   console.log('');

@@ -16,7 +16,6 @@ A full-stack real estate platform with real-time notifications, multi-database s
 
 - 🔒 **SSL/HTTPS Support** - Run server over HTTPS with self-signed or production certificates
 - 💨 **Redis Caching Dashboard** - Real-time visualization of cached data and statistics
-- 🧪 **Integration Testing** - Browser-based automated testing with Jest and Puppeteer
 - 🗂️ **Browser Caching** - localStorage and sessionStorage management with UI viewer
 
 ## Tech Stack
@@ -258,8 +257,6 @@ http://localhost:3000
 
 - **Health Check** - `GET /health`
 - **Properties API** - `GET /api/properties`
-- **Database Tests** - `GET /api/db-test/*`
-- **Notification Tests** - `GET /api/test/notification/*`
 
 #### 🆕 New API Endpoints
 
@@ -267,17 +264,6 @@ http://localhost:3000
 - **Redis Keys** - `GET /api/redis/keys` - List all cached keys
 - **Redis Key Details** - `GET /api/redis/key/:key` - Get specific key details
 - **Clear Cache** - `DELETE /api/redis/clear` - Clear all cached data
-
-## Testing Real-time Notifications
-
-The application includes WebSocket-powered notifications:
-
-1. **Login** to your account
-2. Look for the **bell icon** in the top navigation
-3. Trigger test notifications:
-   - Visit `http://localhost:3000/api/test/notification/property`
-   - Visit `http://localhost:3000/api/test/notification/admin`
-   - Visit `http://localhost:3000/api/test/notification/update`
 
 4. Notifications will appear instantly in the dropdown
 
@@ -479,59 +465,6 @@ The application automatically caches:
 - **Property Listings** (`cache:/api/properties`) - 60 seconds TTL
 - **User Data** - As needed
 - **API Responses** - GET requests with caching middleware
-
-## 🆕 Integration Testing
-
-Browser-based automated tests using Jest and Puppeteer.
-
-### Running Tests
-
-Run all tests:
-```bash
-npm test
-```
-
-Run only integration tests:
-```bash
-npm run test:integration
-```
-
-Watch mode for development:
-```bash
-npm run test:watch
-```
-
-### Test Coverage
-
-**Authentication Tests** (`tests/integration/auth.test.js`):
-- User registration flow
-- User login with valid credentials
-- Invalid credentials handling
-- Session persistence across navigation
-
-**Property Tests** (`tests/integration/property.test.js`):
-- Property listings page loading
-- API endpoint accessibility
-- Search functionality
-
-**Redis Cache Tests** (`tests/integration/redis-cache.test.js`):
-- Cache statistics API
-- Cached keys retrieval
-- Cache behavior verification
-- Redis dashboard functionality
-
-### Test Requirements
-
-- Server must be running on `http://localhost:8080`
-- MongoDB must be available
-- Redis should be running (for cache tests)
-
-### Viewing Tests in Browser
-
-To see tests running in the browser:
-```bash
-HEADLESS=false npm test
-```
 
 ## 🆕 Browser Caching
 
